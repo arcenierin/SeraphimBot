@@ -11,7 +11,7 @@ var messages = [];
 client.on('message', message => {
 	messages.push(message);
 	if(message.content == '!ping'){
-		message.reply('You called?');
+		message.reply('You called? (This bot was made by Ben(NullRoz007), you can grab the source at: https://github.com/GitDwarf/SeraphimBot');
 	}
 	else if(message.content == "!clear"){
 		
