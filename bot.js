@@ -1,6 +1,8 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 const client = new Discord.Client();
+const Events = require('./events/event');
+
 
 client.on('ready', () => {
 	console.log('Client Connected!');	
@@ -8,7 +10,7 @@ client.on('ready', () => {
 
 
 var messages = [];
-
+var events = [];
 client.on('message', message => {
     messages.push(message);
     if(message.content === "!ping"){
@@ -40,6 +42,12 @@ client.on('message', message => {
 	  	if(splitMessage[1] === "new")
 		{
 			console.log("Creating new event...");
+			//eventually this will take you to an externel webpage to setup the event
+			try
+			{
+				var event = new Events.event(events.length+1, splitMessage[2], "placeholder"); //REPLACE placeholder with the name of the commentor
+				console.log("Done!");
+			}						
 		}
 	}
     }
