@@ -24,7 +24,12 @@ client.on('message', message => {
 	    output += messages[index].author+":"+messages[index].content;	
 
 	}
-	fs.writeFile("log-"+client.uptime+".log", output);
+	fs.writeFile("log-"+client.uptime+".log", output, function(err){
+		if(err){
+			return console.log(err);
+		}
+		console.log("Wrote log.");
+	});
     }
     else if(message.content == "!clearlog"){
 	//WIP
