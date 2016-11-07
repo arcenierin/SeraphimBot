@@ -9,21 +9,24 @@ client.on('ready', () => {
 var messages = [];
 
 client.on('message', message => {
-	messages.push(message);
-	if(message.content == '!ping'){
-		message.reply('You called? (This bot was made by Ben(NullRoz007), you can grab the source at: https://github.com/GitDwarf/SeraphimBot');
+    messages.push(message);
+    if(message.content == '!ping'){
+	message.reply('You called? (This bot was made by Ben (NullRoz007), mention him if there are any problems.');
 	}
-	else if(message.content == "!clear"){
+    else if(message.content == "!clear"){
 		
-		message.channel.sendMessage("I can't do that because Ben (NullRoz007) is bad at his job.");
-	}
-	else if(message.content == "!log"){
-		for(index = 0; index < messages.length; ++index){
-			console.log(messages[index].author+":"+messages[index].content);	
+		message.channel.sendMessage("I can't do that because that feature is not yet implemented!");
+    }
+    else if(message.content == "!log"){
+	for(index = 0; index < messages.length; ++index){
+	    console.log(messages[index].author+":"+messages[index].content);	
 
-			
-		}
+
 	}
+    }
+    else if(message.content == "!clearlog"){
+	//WIP
+    }
 });
 
 client.on("guildMemberAdd", (member) => {
