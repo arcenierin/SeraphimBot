@@ -5,4 +5,7 @@ class event{
         this.creator_name = creator_name;
         this.players = [];
     }
+    addPlayer(player){
+        this.players.push(player);
+    }
 module.exports = event;
