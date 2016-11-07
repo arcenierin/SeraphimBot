@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const fs = require('fs');
 const client = new Discord.Client();
 
 client.on('ready', () => {
@@ -11,18 +12,19 @@ var messages = [];
 client.on('message', message => {
     messages.push(message);
     if(message.content == '!ping'){
-	message.reply('You called? (This bot was made by Ben (NullRoz007), mention him if there are any problems.');
+	message.reply('You called? (This bot was made by Ben (NullRoz007) and Reusableduck, @ one of them if there are any problems.');
 	}
     else if(message.content == "!clear"){
-		
-		message.channel.sendMessage("I can't do that because that feature is not yet implemented!");
+	//need to figure out how to do this
     }
     else if(message.content == "!log"){
+	var output = "";
 	for(index = 0; index < messages.length; ++index){
 	    console.log(messages[index].author+":"+messages[index].content);	
-
+	    output += messages[index].author+":"+messages[index].content;	
 
 	}
+	fs.writeFile("log-"+client.uptime+".log", output);
     }
     else if(message.content == "!clearlog"){
 	//WIP
