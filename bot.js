@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 const client = new Discord.Client();
-//const Events = require('./events/event');
+const Events = require('./events/event');
 
 
 client.on('ready', () => {
