@@ -8,4 +8,5 @@ class event{
     addPlayer(player){
         this.players.push(player);
     }
+}
 module.exports = event;
