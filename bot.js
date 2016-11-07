@@ -21,7 +21,7 @@ client.on('message', message => {
 	var output = "";
 	for(index = 0; index < messages.length; ++index){
 	    console.log(messages[index].author+":"+messages[index].content);	
-	    output += messages[index].author+":"+messages[index].content;	
+	    output += messages[index].author+":"+messages[index].content+"\n";	
 
 	}
 	fs.writeFile("log-"+client.uptime+".log", output, function(err){
