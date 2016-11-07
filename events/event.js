@@ -7,6 +7,7 @@ class event{
     }
     addPlayer(player){
         this.players.push(player);
+        console.log('Event: '+this.id+", adding player: "+player);
     }
 }
 module.exports = event;
