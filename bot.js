@@ -11,13 +11,13 @@ var messages = [];
 
 client.on('message', message => {
     messages.push(message);
-    if(message.content == '!ping'){
+    if(message.content === "!ping"){
 	message.reply('You called? (This bot was made by Ben (NullRoz007) and Reusableduck, @ one of them if there are any problems.');
-	}
-    else if(message.content == "!clear"){
-	//need to figure out how to do this
     }
-    else if(message.content == "!log"){
+    else if(message.content === "!clear"){
+	//need to figure out how to clear the entire chat
+    }
+    else if(message.content === "!log"){
 	var output = "";
 	for(index = 0; index < messages.length; ++index){
 	    console.log(messages[index].author+":"+messages[index].content);	
@@ -30,6 +30,18 @@ client.on('message', message => {
 		}
 		console.log("Wrote log.");
 	});
+    }
+    else if(message.content === "!help"){
+    }
+    else if(message.content.split(' ').length >= 1){
+	var splitMessage = message.content.split(' ');
+	if(splitMessage[0] === "!event")
+	{
+	  	if(splitMessage[1] === "new")
+		{
+			console.log("Creating new event...");
+		}
+	}
     }
     else if(message.content == "!clearlog"){
 	//WIP
