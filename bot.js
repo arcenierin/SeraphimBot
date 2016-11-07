@@ -42,17 +42,4 @@ client.on("guildMemberAdd", (member) => {
 	}
 });
 
-
-function login_output(error, token)
-{
-	if(error)
-	{
-		console.log("Error logging in with token: "+token);
-	}	
-	else 
-	{
-		console.log("Logged in with token: "+token)
-	}
-}
-
 client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4');
