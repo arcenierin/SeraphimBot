@@ -1,4 +1,4 @@
-modul.exports = {
+module.exports = {
     Event: function(id, name){
         this.players = [];
         this.id = id;
