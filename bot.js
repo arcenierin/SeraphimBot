@@ -36,25 +36,62 @@ client.on('message', message => {
     else if(message.content === "!help"){
     }
     else if(message.content.split(' ').length >= 1){
-	var splitMessage = message.content.split(' ');
-	if(splitMessage[0] === "!event")
-	{
-	  	if(splitMessage[1] === "new")
+		var splitMessage = message.content.split(' ');
+		//syntax: !event new 'Event name' time (00:00) timezone (CST, CET, CEST etc)
+		if(splitMessage[0] === "!event")
 		{
-			console.log("Creating new event...");
-			//eventually this will take you to an externel webpage to setup the event, rather than doing it all here
-			try
+			if(splitMessage[1] === "new")
 			{
-				var event = new Events.Event(events.length+1, splitMessage[2]); 
-				console.log(event);
-				message.reply("Creating your event...");
-			}	
-			catch(err)
-			{
-				console.log(err.message);
+				console.log("Creating new event...");
+				//eventually this will take you to an externel webpage to setup the event, rather than doing it all here
+				try
+				{
+					var name = "";
+					var starttime = "";
+					var timezone = "";
+					var spacedName = false;
+					var lookingForEnd = false;
+					var nameStartIndex = 0;
+					while(spacedName == false){
+						for(index = 2; index < splitMessage.length; index++){
+							if(splitMessage[index].charAt[0] === "'"){
+								spacedName = true;
+								lookingForEnd = true;
+							}
+							++nameStartIndex;
+						}
+					}
+					
+					if(spacedName){
+						var nameEndIndex = 0;
+						while(lookingForEnd){
+							for(i = nameStartIndex; i < splitMessage.length; i++){
+								if(splitMessage[i].charAt(splitMessage[i].length - 1) == "'"){
+									lookingForEnd = false;
+								}
+								++nameEndIndex;
+							}	
+						}
+						for(i = nameStartIndex; i <= nameEndIndex; i++){
+							name += splitMessage[i];
+						}
+						
+					}
+					else{
+						name = splitMessage[2];
+					}
+					
+					
+					var event = new Events.Event(events.length+1, name); 
+					console.log(event);
+					message.reply("Creating your event...");
+				}	
+				catch(err)
+				{
+					console.log(err.message);
+				}
 			}
 		}
-	}
     }
     else if(message.content == "!clearlog"){
 	//WIP
