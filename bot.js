@@ -69,6 +69,7 @@ client.on('message', message => {
 						var nameEndIndex = 0;
 						while(lookingForEnd){
 							for(i = nameStartIndex; i < splitMessage.length; i++){
+								console.log(splitMessage[i].charAt(splitMessage[i].length - 1));
 								if(splitMessage[i].charAt(splitMessage[i].length - 1) == '"'){
 									lookingForEnd = false;
 								}
