@@ -47,8 +47,8 @@ client.on('message', message => {
 				try
 				{
 					var name = "";
-					var starttime = "";
-					var timezone = "";
+					//var starttime = "";
+					//var timezone = "";
 					if(message.content.indexOf('"') < -1){
 						var split = message.content.split('"');
 						if(split.length == 3){
@@ -63,9 +63,10 @@ client.on('message', message => {
 						name = splitMessage[2];
 					}
 					
-					var event = new Events.Event(events.length+1, name); 
+					var event = new Events.Event(events.length+1, name, splitMessage[3], splitMessage[4]); 
 					console.log(event);
 					message.reply("Creating your event...");
+					events.push(event);
 				}	
 				catch(err)
 				{
