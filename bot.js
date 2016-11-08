@@ -47,6 +47,7 @@ client.on('message', message => {
 				try
 				{
 					var name = "";
+					var n = 0;
 					//var starttime = "";
 					//var timezone = "";
 					console.log(message.content.indexOf('"'));
@@ -55,6 +56,7 @@ client.on('message', message => {
 						var split = message.content.split('"');
 						if(split.length == 3){
 							name = split[1];
+							n = name.split(' ').length;
 						}
 						else{
 							message.reply("Invalid Syntax");
@@ -65,7 +67,7 @@ client.on('message', message => {
 						name = splitMessage[2];
 					}
 					
-					var event = new Events.Event(events.length+1, name, splitMessage[3], splitMessage[4]); 
+					var event = new Events.Event(events.length+1, name, splitMessage[3 + n], splitMessage[4 + n]); 
 					console.log(event);
 					message.reply("Creating your event...");
 					events.push(event);
