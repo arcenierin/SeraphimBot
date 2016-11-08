@@ -50,7 +50,7 @@ client.on('message', message => {
 					//var starttime = "";
 					//var timezone = "";
 					console.log(message.content.indexOf('"'));
-					if(message.content.indexOf('"') == 2){
+					if(ParseInt(message.content.indexOf('"')) > -1){
 						console.log('!');
 						var split = message.content.split('"');
 						if(split.length == 3){
