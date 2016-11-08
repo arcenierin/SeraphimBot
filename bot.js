@@ -47,6 +47,7 @@ client.on('message', message => {
 			{
 				var event = new Events.event(events.length+1, splitMessage[2], "placeholder"); //REPLACE placeholder with the name of the commentor
 				console.log(event);
+				message.reply("Creating your event...");
 			}	
 			catch(err)
 			{
