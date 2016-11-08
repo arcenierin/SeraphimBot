@@ -1,8 +1,10 @@
 module.exports = {
-    Event: function(id, name){
+    Event: function(id, name, time, timezone){
         this.players = [];
         this.id = id;
         this.name = name;
+        this.startTime = time;
+        this.timeZone = timezone;
     }, 
     addPlayer: function(player){
         this.players.push(player);
