@@ -45,7 +45,7 @@ client.on('message', message => {
 			//eventually this will take you to an externel webpage to setup the event, rather than doing it all here
 			try
 			{
-				var event = new Events.Event(events.length+1, splitMessage[2]); 
+				var event = new Event(events.length+1, splitMessage[2]); 
 				console.log(event);
 				message.reply("Creating your event...");
 			}	
