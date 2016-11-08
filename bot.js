@@ -64,9 +64,10 @@ client.on('message', message => {
 						}
 						lookingForSpacedName = false;
 					}
-					console.log("!");
+
 					if(spacedName){
-						var nameEndIndex = 0;
+						console.log("!");
+						var nameEndIndex = nameStartIndex;
 						while(lookingForEnd){
 							for(i = nameStartIndex; i < splitMessage.length; i++){
 								console.log(splitMessage[i].charAt(splitMessage[i].length - 1));
