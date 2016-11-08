@@ -50,9 +50,11 @@ client.on('message', message => {
 					var starttime = "";
 					var timezone = "";
 					var spacedName = false;
+					var lookingForSpacedName = true;
 					var lookingForEnd = false;
 					var nameStartIndex = 0;
-					while(spacedName == false){
+					
+					while(spacedName == false && lookingForSpacedName){
 						for(index = 2; index < splitMessage.length; index++){
 							if(splitMessage[index].charAt[0] == '"'){
 								spacedName = true;
@@ -60,6 +62,7 @@ client.on('message', message => {
 							}
 							++nameStartIndex;
 						}
+						lookingForSpacedName = false;
 					}
 					console.log("!");
 					if(spacedName){
