@@ -49,44 +49,19 @@ client.on('message', message => {
 					var name = "";
 					var starttime = "";
 					var timezone = "";
-					var spacedName = false;
-					var lookingForSpacedName = true;
-					var lookingForEnd = false;
-					var nameStartIndex = 0;
+					if(message.content.indexOf('"') < -1){
+						var split = message.content.split('"');
+						if(split.length == 3){
+							name = split[1];
+						}
+						else{
+							message.reply("Invalid Syntax");
+						}
+					}
 					
-					while(spacedName == false && lookingForSpacedName){
-						for(index = 2; index < splitMessage.length; index++){
-							//console.log(String(splitMessage[index]).charAt(0));
-							if(String(splitMessage[index]).charAt[0] == '"'){
-								spacedName = true;
-								lookingForEnd = true;
-							}
-							++nameStartIndex;
-						}
-						lookingForSpacedName = false;
-					}
-
-					if(spacedName){
-						console.log("!");
-						var nameEndIndex = nameStartIndex;
-						while(lookingForEnd){
-							for(i = nameStartIndex; i < splitMessage.length; i++){
-								//console.log(splitMessage[i].charAt(splitMessage[i].length - 1));
-								if(String(splitMessage[i]).charAt(splitMessage[i].length - 1) == '"'){
-									lookingForEnd = false;
-								}
-								++nameEndIndex;
-							}	
-						}
-						for(i = nameStartIndex; i <= nameEndIndex; i++){
-							name += splitMessage[i];
-						}
-						
-					}
 					else{
 						name = splitMessage[2];
 					}
-					
 					
 					var event = new Events.Event(events.length+1, name); 
 					console.log(event);
