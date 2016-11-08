@@ -42,10 +42,10 @@ client.on('message', message => {
 	  	if(splitMessage[1] === "new")
 		{
 			console.log("Creating new event...");
-			//eventually this will take you to an externel webpage to setup the event
+			//eventually this will take you to an externel webpage to setup the event, rather than doing it all here
 			try
 			{
-				var event = new Events.event(events.length+1, splitMessage[2], "placeholder"); //REPLACE placeholder with the name of the commentor
+				var event = new Events.Event(events.length+1, splitMessage[2]); 
 				console.log(event);
 				message.reply("Creating your event...");
 			}	
