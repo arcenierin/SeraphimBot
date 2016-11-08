@@ -56,7 +56,7 @@ client.on('message', message => {
 						var split = message.content.split('"');
 						if(split.length == 3){
 							name = split[1];
-							n = name.split(' ').length;
+							n = name.split(' ').length - 1;
 							console.log(n);
 						}
 						else{
