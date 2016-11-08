@@ -69,7 +69,7 @@ client.on('message', message => {
 					
 					var event = new Events.Event(events.length+1, name, splitMessage[3 + n], splitMessage[4 + n]); 
 					console.log(event);
-					message.reply("Creating your event: ID="+event.id+", Name="+event.name+", Start time="event.startTime+"-"+event.timeZone);
+					message.reply("Creating your event: ID="+event.id+", Name="+event.name+", Start time="+event.startTime+"-"+event.timeZone);
 					events.push(event);
 				}	
 				catch(err)
