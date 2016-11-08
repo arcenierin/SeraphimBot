@@ -57,6 +57,7 @@ client.on('message', message => {
 						if(split.length == 3){
 							name = split[1];
 							n = name.split(' ').length;
+							console.log(n);
 						}
 						else{
 							message.reply("Invalid Syntax");
