@@ -49,7 +49,7 @@ client.on('message', message => {
 					var name = "";
 					//var starttime = "";
 					//var timezone = "";
-					if(message.content.indexOf('"') < -1){
+					if(String(message.content).indexOf('"') < -1){
 						console.log('!');
 						var split = message.content.split('"');
 						if(split.length == 3){
