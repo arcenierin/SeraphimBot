@@ -56,8 +56,8 @@ client.on('message', message => {
 					
 					while(spacedName == false && lookingForSpacedName){
 						for(index = 2; index < splitMessage.length; index++){
-							console.log(String(splitMessage[index]).charAt(0));
-							if(splitMessage[index].charAt[0] == '"'){
+							//console.log(String(splitMessage[index]).charAt(0));
+							if(String(splitMessage[index]).charAt[0] == '"'){
 								spacedName = true;
 								lookingForEnd = true;
 							}
@@ -71,8 +71,8 @@ client.on('message', message => {
 						var nameEndIndex = nameStartIndex;
 						while(lookingForEnd){
 							for(i = nameStartIndex; i < splitMessage.length; i++){
-								console.log(splitMessage[i].charAt(splitMessage[i].length - 1));
-								if(splitMessage[i].charAt(splitMessage[i].length - 1) == '"'){
+								//console.log(splitMessage[i].charAt(splitMessage[i].length - 1));
+								if(String(splitMessage[i]).charAt(splitMessage[i].length - 1) == '"'){
 									lookingForEnd = false;
 								}
 								++nameEndIndex;
