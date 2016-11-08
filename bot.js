@@ -54,7 +54,7 @@ client.on('message', message => {
 					var nameStartIndex = 0;
 					while(spacedName == false){
 						for(index = 2; index < splitMessage.length; index++){
-							if(splitMessage[index].charAt[0] === "'"){
+							if(splitMessage[index].charAt[0] === '"'){
 								spacedName = true;
 								lookingForEnd = true;
 							}
@@ -66,7 +66,7 @@ client.on('message', message => {
 						var nameEndIndex = 0;
 						while(lookingForEnd){
 							for(i = nameStartIndex; i < splitMessage.length; i++){
-								if(splitMessage[i].charAt(splitMessage[i].length - 1) == "'"){
+								if(splitMessage[i].charAt(splitMessage[i].length - 1) == '"'){
 									lookingForEnd = false;
 								}
 								++nameEndIndex;
