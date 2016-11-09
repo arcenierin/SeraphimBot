@@ -220,7 +220,13 @@ client.on("guildMemberAdd", (member) => {
 		if(client.channels.array()[i].name == "general")
 		{
 			client.channels.array()[i].sendMessage("Welcome to Seraphim Elite "+member.user+", make sure you read the rules in # welcome-read-me, and feel free to introduce yourself to the rest of the clan! If you haven't already, you can set Seraphim Elite as your active clan at: https://www.bungie.net/en/Clan/Forum/1669611");
-			console.log(client.channels.array()[i].guild.roles);
+			//console.log(client.channels.array()[i].guild.roles);
+			for(x = 0; x < client.channels.array()[i].guild.roles; x++){
+				var guild = client.channels.array()[i].guild.roles[x];
+				if(guild.name == "INITIATE"){
+					member.addRole(client.channels.array()[i].guild.roles[x]);
+				}
+			}
 		}
 		
 	}
