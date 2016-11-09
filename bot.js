@@ -111,19 +111,20 @@ client.on('message', message => {
 						}
 							
 					}
-					if(String(name.split('-')) == "wotm")
+					//not working if name has dash
+					if(name.split('-') == "wotm")
 					{
 						fullName = "Wrath of The Machine "+diff;
 					}
-					else if(String(name.split('-')) == "kf")
+					else if(name.split('-') == "kf")
 					{
 						fullName = "King's Fall "+diff;
 					}
-					else if(String(name.split('-')) == "ce")
+					else if(name.split('-') == "ce")
 					{
-						fullName = "Crota's End"+diff;
+						fullName = "Crota's End "+diff;
 					}
-					else if(String(name.split('-')) == "vog"){
+					else if(name.split('-') == "vog"){
 						fullName = "Vault of Glass "+diff;
 					}
 					else{
