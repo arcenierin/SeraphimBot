@@ -141,9 +141,8 @@ client.on('message', message => {
 				console.log(err.message);
 			}
 		}
-	}
-    }
-    }
+	} 
+    
     else if(message.content == "!clearlog"){
 	//WIP
     }
