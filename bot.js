@@ -74,6 +74,7 @@ client.on('message', message => {
 			{
 				var name = "";
 				var n = 0;
+				var fullName = "";
 				//var starttime = "";
 				//var timezone = "";
 				console.log(message.content.indexOf('"'));
@@ -81,8 +82,8 @@ client.on('message', message => {
 					console.log('!');
 					var split = message.content.split('"');
 					if(split.length == 3){
-						name = split[1];
-						n = name.split(' ').length - 1;
+						fullName = split[1];
+						n = fullName.split(' ').length - 1;
 						console.log(n);
 					}
 					else{
@@ -93,7 +94,7 @@ client.on('message', message => {
 				else{
 					name = splitMessage[1];
 					var diff = "";
-					var fullName = "";
+					
 					if(name.indexOf('-') > -1){
 						//contains a dash, ie wotm-h
 						
@@ -131,7 +132,8 @@ client.on('message', message => {
 					
 				var event = new Events.Event(events.length+1, fullName, splitMessage[3 + n], splitMessage[4 + n]); 
 				console.log(event);
-				message.reply("Creating your event: ID="+event.id+", Name="+event.name+", Start time="+event.startTime+"-"+event.timeZone);
+				message.reply("================================\n"+fullName+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================");
+				//message.reply("Creating your event: ID="+event.id+", Name="+event.name+", Start time="+event.startTime+"-"+event.timeZone);
 				events.push(event);
 			}	
 			catch(err)
