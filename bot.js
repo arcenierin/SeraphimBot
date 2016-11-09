@@ -62,47 +62,81 @@ client.on('message', message => {
     else if(message.content.split(' ').length >= 1){
 		var splitMessage = message.content.split(' ');
 		//syntax: !event new 'Event name' time (00:00) timezone (CST, CET, CEST etc)
-		if(splitMessage[0] === "!event")
+		if(splitMessage[0] === "!post")
 		{
-			if(splitMessage[1] === "new")
+			
+			console.log("Creating new event...");
+			
+			try
 			{
-				console.log("Creating new event...");
-				//eventually this will take you to an externel webpage to setup the event, rather than doing it all here
-				try
-				{
-					var name = "";
-					var n = 0;
-					//var starttime = "";
-					//var timezone = "";
-					console.log(message.content.indexOf('"'));
-					if(String(message.content).indexOf('"') > -1){
-						console.log('!');
-						var split = message.content.split('"');
-						if(split.length == 3){
-							name = split[1];
-							n = name.split(' ').length - 1;
-							console.log(n);
-						}
-						else{
-							message.reply("Invalid Syntax");
-						}
+				var name = "";
+				var n = 0;
+				//var starttime = "";
+				//var timezone = "";
+				console.log(message.content.indexOf('"'));
+				if(String(message.content).indexOf('"') > -1){
+					console.log('!');
+					var split = message.content.split('"');
+					if(split.length == 3){
+						name = split[1];
+						n = name.split(' ').length - 1;
+						console.log(n);
 					}
-					
 					else{
-						name = splitMessage[2];
+						message.reply("Invalid Syntax");
 					}
-					
-					var event = new Events.Event(events.length+1, name, splitMessage[3 + n], splitMessage[4 + n]); 
-					console.log(event);
-					message.reply("Creating your event: ID="+event.id+", Name="+event.name+", Start time="+event.startTime+"-"+event.timeZone);
-					events.push(event);
-				}	
-				catch(err)
-				{
-					console.log(err.message);
 				}
+					
+				else{
+					name = splitMessage[1];
+					var diff = "";
+					var fullName = "";
+					if(name.indexOf('-') > -1){
+						//contains a dash, ie wotm-h
+						
+						diff = name.split('-')[1];
+						if(String(diff) == "h"){
+							diff = "HM";
+						}
+						else if(String(diff) == "n"){
+							diff = "NM"
+						}
+						else {
+							diff = "";
+						}
+							
+					}
+					if(name == "wotm")
+					{
+						fullName = "Wrath of The Machine "+diff;
+					}
+					else if(name == "kf")
+					{
+						fullName = "King's Fall "+diff;
+					}
+					else if(name == "ce")
+					{
+						fullName = "Crota's End"+diff;
+					}
+					else if(name == "vog"){
+						fullName = "Vault of Glass "+diff;
+					}
+					else{
+						fullName = name;
+					}
+				}
+					
+				var event = new Events.Event(events.length+1, fullName, splitMessage[3 + n], splitMessage[4 + n]); 
+				console.log(event);
+				message.reply("Creating your event: ID="+event.id+", Name="+event.name+", Start time="+event.startTime+"-"+event.timeZone);
+				events.push(event);
+			}	
+			catch(err)
+			{
+				console.log(err.message);
 			}
 		}
+	}
     }
     else if(message.content == "!clearlog"){
 	//WIP
