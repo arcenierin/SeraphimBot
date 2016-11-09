@@ -192,6 +192,18 @@ client.on('message', message => {
 				Events.removePlayer(event, message.member);
 			}
 		}
+	    	else if(splitMessage[0] == "!rolecall"){
+			if(splitMessage.length == 2){
+				var id = splitMessage[1];
+				var event = events[parseInt(id) - 1];
+				var output = "Rolecall for "+event.name+" at "+event.startTime+" "+event.timeZone+"\n";
+				for(i = 0; i < event.players.length; i++){
+					var userToPing = event.players[i].user;
+					output += userToPing;
+				}
+				message.channel.sendMessage(output);
+			}
+		}
 	    
 	    
 	} 
