@@ -102,10 +102,10 @@ client.on('message', message => {
 						diff = name.split('-')[1];
 						console.log(diff);
 						if(String(diff) == "h"){
-							diff = "HM";
+							diff = "Hard Mode";
 						}
 						else if(String(diff) == "n"){
-							diff = "NM"
+							diff = "Normal Mode"
 						}
 						else {
 							diff = "";
@@ -114,20 +114,24 @@ client.on('message', message => {
 					}
 					
 					//not working if name has dash
-					if(name.split('-') == "wotm")
+					
+					if(name.split('-')[0] == "wotm")
 					{
 						fullName = "Wrath of The Machine "+diff;
 					}
-					else if(name.split('-') == "kf")
+					else if(name.split('-')[0] == "kf")
 					{
 						fullName = "King's Fall "+diff;
 					}
-					else if(name.split('-') == "ce")
+					else if(name.split('-')[0] == "ce")
 					{
 						fullName = "Crota's End "+diff;
 					}
-					else if(name.split('-') == "vog"){
+					else if(name.split('-')[0] == "vog"){
 						fullName = "Vault of Glass "+diff;
+					}
+					else if(name.split('-')[0] == "coe"){
+						fullName = "Challenge of Elders";
 					}
 					else{
 						fullName = name;
@@ -146,11 +150,16 @@ client.on('message', message => {
 				console.log(err.message);
 			}
 		}
+	    
 	} 
-    
-    else if(message.content == "!clearlog"){
+    	else if(message.content == "!groups"){
+		for(i = 0; i < events.length; i++){
+			console.log(events[i]);
+		}
+	}
+	else if(message.content == "!clearlog"){
 	//WIP
-    }
+    	}
 });
 
 client.on("guildMemberAdd", (member) => {
