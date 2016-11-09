@@ -181,7 +181,7 @@ client.on('message', message => {
 			if(splitMessage.length == 2){
 				var id = splitMessage[1];
 				var event = events[parseInt(id) - 1];
-				Event.addPlayer(event, message.member);
+				Events.addPlayer(event, message.member);
 				message.reply("Added you to "+event.name);
 			}
 		}
