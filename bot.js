@@ -168,7 +168,7 @@ client.on('message', message => {
 				output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================"
 				var playerIndex = 1;
 				for(i = 0; i < event.players.length; i++){
-					output += "\nRoster:\n"+playerIndex+". "+event.players[i].nickname+"\n";
+					output += "\nRoster:\n"+playerIndex+". "+event.players[i].user+"\n";
 					++playerIndex;
 				}
 				output+="```";
