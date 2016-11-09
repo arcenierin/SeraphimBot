@@ -143,6 +143,7 @@ client.on('message', message => {
 		}
 	}
     }
+    }
     else if(message.content == "!clearlog"){
 	//WIP
     }
