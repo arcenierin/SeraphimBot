@@ -98,7 +98,7 @@ client.on('message', message => {
 					
 					if(name.indexOf('-') > -1){
 						//contains a dash, ie wotm-h
-						
+						console.log("!");
 						diff = name.split('-')[1];
 						console.log(diff);
 						if(String(diff) == "h"){
