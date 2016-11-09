@@ -131,7 +131,7 @@ client.on('message', message => {
 					}
 				}
 					
-				var event = new Events.Event(events.length+1, fullName, splitMessage[2 + n], splitMessage[4 + n]); 
+				var event = new Events.Event(events.length+1, fullName, splitMessage[2 + n], splitMessage[3 + n]); 
 				console.log(event);
 				message.reply("'''\n================================\n"+fullName+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================'''");
 				//message.reply("Creating your event: ID="+event.id+", Name="+event.name+", Start time="+event.startTime+"-"+event.timeZone);
