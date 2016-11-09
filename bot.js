@@ -3,7 +3,6 @@ const fs = require('fs');
 const client = new Discord.Client();
 const Events = require('./events/event');
 
-
 client.on('ready', () => {
 	console.log('Client Connected!');	
 });
@@ -17,7 +16,32 @@ client.on('message', message => {
 	message.reply('You called? (This bot was made by Ben (NullRoz007) and Reusableduck, @ one of them if there are any problems.');
     }
     else if(message.content === "!clear"){
-	//need to figure out how to clear the entire chat
+		// Still need to find a way to properly check mod perms
+		
+		if (true){
+			
+			var msgPromise = message.channel.fetchMessages(); 
+			
+			msgPromise.then(function (pastMsgs) {
+				console.log('Stuff worked - 1');
+				var promiseArray = pastMsgs.deleteAll();
+			
+				console.log(promiseArray.length);
+			
+				for (var i = 0; i < promiseArray.length; i++){
+					promiseArray[i].then(function (test){
+							console.log('Stuff worked');
+						});
+					promiseArray[i].catch(function (err){
+							console.log('WE GOT ERR', err);
+						});
+				}
+			});
+			
+			msgPromise.catch(function (err){
+							console.log('WE GOT ERR - 1', err);
+						});			
+		}
     }
     else if(message.content === "!log"){
 	var output = "";
@@ -96,4 +120,22 @@ client.on("guildMemberAdd", (member) => {
 	}
 });
 
-client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4');
+
+//client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
+client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
+
+ /**function hasModPerms(input) {
+	 
+	var userRoles = input.server.rolesOfUser(input.author);
+	var check = false;
+	var modRoles = [ "Admin", "Moderator" ];
+	
+	for (var i = 0; i < userRoles.length; i++){
+		for (var j = 0; j < modRoles.length; j++){
+			if (modRoles[j] == userRoles[i].name){
+				check = true;
+			}
+		}
+	}
+	return check;
+} */
