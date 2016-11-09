@@ -18,7 +18,7 @@ client.on('message', message => {
     else if(message.content === "!clear"){
 		// Still need to find a way to properly check mod perms
 		
-		if (true){
+		if (hasModPerms(message)){
 			
 			var msgPromise = message.channel.fetchMessages(); 
 			
@@ -40,8 +40,11 @@ client.on('message', message => {
 			
 			msgPromise.catch(function (err){
 							console.log('WE GOT ERR - 1', err);
-						});			
-		}
+						});		
+						
+		} else {
+			message.reply('You are not a moderator');
+		}	
     }
     else if(message.content === "!log"){
 	var output = "";
@@ -158,18 +161,9 @@ client.on("guildMemberAdd", (member) => {
 //client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
 client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
 
- /**function hasModPerms(input) {
+ function hasModPerms(input) {
 	 
-	var userRoles = input.server.rolesOfUser(input.author);
-	var check = false;
-	var modRoles = [ "Admin", "Moderator" ];
+	var modPerms = [ "MANAGE_MESSAGES", "MANAGE_ROLES_OR_PERMISSIONS" ];
 	
-	for (var i = 0; i < userRoles.length; i++){
-		for (var j = 0; j < modRoles.length; j++){
-			if (modRoles[j] == userRoles[i].name){
-				check = true;
-			}
-		}
-	}
-	return check;
-} */
+	return input.member.permissions.hasPermissions(modPerms, true);
+} 
