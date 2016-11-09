@@ -9,5 +9,5 @@ A discord bot written in javascript using node.js and discord.js
 4. Join group [x]
 5. Leave group [x]
 6. Ping each player in group [x]
-7. Clear chat [x] (but only clears visible chat messages)
+7. Clear chat \[-] \(but only clears visible chat messages)
 8. ...
