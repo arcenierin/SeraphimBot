@@ -153,6 +153,7 @@ client.on('message', message => {
 	    
 	} 
     	else if(message.content == "!groups"){
+		console.log("Getting groups...");
 		for(i = 0; i < events.length; i++){
 			console.log(events[i]);
 		}
