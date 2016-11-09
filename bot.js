@@ -62,6 +62,12 @@ client.on('message', message => {
     }
     else if(message.content === "!help"){
     }
+    else if(message.content === "!groups"){
+	console.log("Getting groups...");
+	for(i = 0; i < events.length; i++){
+	    console.log(events[i]);
+	}
+    }
     else if(message.content.split(' ').length >= 1){
 		var splitMessage = message.content.split(' ');
 		//syntax: !event new 'Event name' time (00:00) timezone (CST, CET, CEST etc)
@@ -152,12 +158,7 @@ client.on('message', message => {
 		}
 	    
 	} 
-    	else if(message.content == "!groups"){
-		console.log("Getting groups...");
-		for(i = 0; i < events.length; i++){
-			console.log(events[i]);
-		}
-	}
+    	
 	else if(message.content == "!clearlog"){
 	//WIP
     	}
