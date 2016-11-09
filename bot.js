@@ -64,9 +64,12 @@ client.on('message', message => {
     }
     else if(message.content === "!groups"){
 	console.log("Getting groups...");
+	var output = "```";
 	for(i = 0; i < events.length; i++){
 	    var event = events[i];
+	    output += "ID: "+event.id+", "+event.name+"\n";
 	}
+	output += "```";
     }
     else if(message.content.split(' ').length >= 1){
 		var splitMessage = message.content.split(' ');
