@@ -9,6 +9,11 @@ module.exports = {
     addPlayer: function(event, player){
         event.players.push(player);
         console.log('Event: '+event.id+", adding player: "+player);
+    },
+    removePlayer: function(event, playerName){
+        var index = event.players.findIndex(x => x.user.username == playerName);
+        event.players.splice(index, 1);
+        console.log('Event: '+event.id+", removing player: "+event.players[index]);
     }
 }
 
