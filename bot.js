@@ -166,10 +166,10 @@ client.on('message', message => {
 			if(splitMessage.length == 2){
 				var id = splitMessage[1];
 				var event = events[parseInt(id) - 1];
-				output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================";
+				output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================"+"\nRoster:\n";
 				var playerIndex = 1;
 				for(i = 0; i < event.players.length; i++){
-					output += "\nRoster:\n"+playerIndex+". "+event.players[i].user.username+"\n";
+					output += playerIndex+". "+event.players[i].user.username+"\n";
 					++playerIndex;
 				}
 				output+="```";
@@ -182,7 +182,7 @@ client.on('message', message => {
 				var id = splitMessage[1];
 				var event = events[parseInt(id) - 1];
 				Events.addPlayer(event, message.member);
-				message.reply("Added you to "+event.name);
+				message.reply("added you to "+event.name);
 			}
 		}
 	    
