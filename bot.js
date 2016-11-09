@@ -70,6 +70,7 @@ client.on('message', message => {
 	    output += "ID: "+event.id+", "+event.name+"\n";
 	}
 	output += "```";
+	message.channel.sendMessage(output);
     }
     else if(message.content.split(' ').length >= 1){
 		var splitMessage = message.content.split(' ');
