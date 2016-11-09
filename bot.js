@@ -124,7 +124,7 @@ client.on('message', message => {
 							
 					}
 					
-					//not working if name has dash
+					
 					
 					if(name.split('-')[0] == "wotm")
 					{
@@ -162,11 +162,11 @@ client.on('message', message => {
 				console.log(err.message);
 			}
 		}
-	    	if(splitMessage[0] == "!group"){
+	    	else if(splitMessage[0] == "!group"){
 			if(splitMessage.length == 2){
 				var id = splitMessage[1];
 				var event = events[parseInt(id) - 1];
-				output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================"
+				output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================";
 				var playerIndex = 1;
 				for(i = 0; i < event.players.length; i++){
 					output += "\nRoster:\n"+playerIndex+". "+event.players[i].user.username+"\n";
@@ -177,6 +177,15 @@ client.on('message', message => {
 			}
 			
 		}
+	    	else if(splitMessage[0] == "!joingroup"){
+			if(splitMessage.length == 2){
+				var id = splitMessage[1];
+				var event = events[parseInt(id) - 1];
+				Event.addPlayer(event, message.member);
+				message.reply("Added you to "+event.name);
+			}
+		}
+	    
 	    
 	} 
     	
