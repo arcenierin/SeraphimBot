@@ -100,6 +100,7 @@ client.on('message', message => {
 						//contains a dash, ie wotm-h
 						
 						diff = name.split('-')[1];
+						console.log(diff);
 						if(String(diff) == "h"){
 							diff = "HM";
 						}
@@ -111,6 +112,7 @@ client.on('message', message => {
 						}
 							
 					}
+					
 					//not working if name has dash
 					if(name.split('-') == "wotm")
 					{
@@ -134,7 +136,7 @@ client.on('message', message => {
 					
 				var event = new Events.Event(events.length+1, fullName, splitMessage[2 + n], splitMessage[3 + n]); 
 				console.log(event);
-				message.channel.sendMessage("'''\n================================\n"+fullName+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================'''");
+				message.channel.sendMessage("```\n================================\n"+fullName+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================```");
 				
 				//message.reply("Creating your event: ID="+event.id+", Name="+event.name+", Start time="+event.startTime+"-"+event.timeZone);
 				events.push(event);
