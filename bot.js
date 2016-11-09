@@ -65,7 +65,7 @@ client.on('message', message => {
     else if(message.content === "!groups"){
 	console.log("Getting groups...");
 	for(i = 0; i < events.length; i++){
-	    console.log(events[i]);
+	    var event = events[i];
 	}
     }
     else if(message.content.split(' ').length >= 1){
@@ -147,7 +147,7 @@ client.on('message', message => {
 				var event = new Events.Event(events.length+1, fullName, splitMessage[2 + n], splitMessage[3 + n]); 
 				console.log(event);
 				message.channel.sendMessage("```\n================================\n"+fullName+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================```");
-				
+				event.addPlayer(message.member.nickName);
 				//message.reply("Creating your event: ID="+event.id+", Name="+event.name+", Start time="+event.startTime+"-"+event.timeZone);
 				events.push(event);
 			}	
