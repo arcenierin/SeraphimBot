@@ -69,12 +69,13 @@ client.on('message', message => {
 	    var event = events[i];
 	    output += "ID: "+event.id+", "+event.name+"\n";
 	}
-	output += "```";
+	output += "```\nTo get more specific details about a group, type !group <id>.";
 	message.channel.sendMessage(output);
     }
     else if(message.content.split(' ').length >= 1){
 		var splitMessage = message.content.split(' ');
 		//syntax: !event new 'Event name' time (00:00) timezone (CST, CET, CEST etc)
+	    	
 		if(splitMessage[0] === "!post")
 		{
 			
@@ -159,6 +160,21 @@ client.on('message', message => {
 			{
 				console.log(err.message);
 			}
+		}
+	    	if(splitMessage[0] == "!group"){
+			if(splitMessage.length == 2){
+				var id = splitMessage[1];
+				var event = events[ParseInt(id) + 1];
+				output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================"
+				var playerIndex = 1;
+				for(i = 0; i < event.players.length; i++){
+					output += "Roster\n"+playerIndex+". "+event.players[i].nickName+"\n";
+					++playerIndex;
+				}
+				output+="```";
+				message.channel.sendMessage(output);
+			}
+			
 		}
 	    
 	} 
