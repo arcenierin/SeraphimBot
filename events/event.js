@@ -6,9 +6,9 @@ module.exports = {
         this.startTime = time;
         this.timeZone = timezone;
     }, 
-    addPlayer: function(player){
-        this.players.push(player);
-        console.log('Event: '+this.id+", adding player: "+player);
+    addPlayer: function(event, player){
+        event.players.push(player);
+        console.log('Event: '+event.id+", adding player: "+player);
     }
 }
 
