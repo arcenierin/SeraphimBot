@@ -164,7 +164,7 @@ client.on('message', message => {
 	    	if(splitMessage[0] == "!group"){
 			if(splitMessage.length == 2){
 				var id = splitMessage[1];
-				var event = events[ParseInt(id) + 1];
+				var event = events[parseInt(id) + 1];
 				output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================"
 				var playerIndex = 1;
 				for(i = 0; i < event.players.length; i++){
