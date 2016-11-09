@@ -150,10 +150,11 @@ client.on('message', message => {
 				}
 					
 				var event = new Events.Event(events.length+1, fullName, splitMessage[2 + n], splitMessage[3 + n]); 
-				console.log(event);
+				
 				message.channel.sendMessage("```\n================================\n"+fullName+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================```");
 				Events.addPlayer(event, message.member);
 				//message.reply("Creating your event: ID="+event.id+", Name="+event.name+", Start time="+event.startTime+"-"+event.timeZone);
+				console.log(event);
 				events.push(event);
 			}	
 			catch(err)
