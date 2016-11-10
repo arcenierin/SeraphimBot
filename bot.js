@@ -16,24 +16,23 @@ client.on('message', message => {
 	message.reply('You called? (This bot was made by Ben (NullRoz007) and Reusableduckk, @ one of them if there are any problems.');
     }
     else if(message.content === "!clear"){
-		// Still need to find a way to properly check mod perms
 		
 		if (hasModPerms(message)){
 			
 			var msgPromise = message.channel.fetchMessages(); 
 			
 			msgPromise.then(function (pastMsgs) {
-				console.log('Stuff worked - 1');
+				console.log('Finished fetching messages...');
 				var promiseArray = pastMsgs.deleteAll();
 			
 				console.log(promiseArray.length);
 			
 				for (var i = 0; i < promiseArray.length; i++){
 					promiseArray[i].then(function (test){
-							console.log('Stuff worked');
+							console.log('Message deleted');
 						});
 					promiseArray[i].catch(function (err){
-							console.log('WE GOT ERR', err);
+							console.log('FAILURE DELETING MESSAGE', err);
 						});
 				}
 			});
@@ -204,6 +203,44 @@ client.on('message', message => {
 				message.channel.sendMessage(output);
 			}
 		}
+			else if (splitMessage[0] === "!muteuser"){
+				if (hasModPerms(message)){
+					if(splitMessage.length == 2){
+						
+						var name = splitMessage[1];
+						var found = findUser(message, name);
+						
+						if (found != null){
+							message.channel.overwritePermissions(found.user, {
+								SEND_MESSAGES: false
+								})
+								.then(() => console.log("User " + found.user.username + " has been muted"))
+								.catch(e => console.log("Error muting user!"));
+						} else {
+							message.channel.sendMessage("Could not find a user with that name/nickname");
+						}
+					}
+				}
+		}
+			else if (splitMessage[0] === "!unmuteuser"){
+				if (hasModPerms(message)){
+					if(splitMessage.length == 2){
+						
+						var name = splitMessage[1];
+						var found = findUser(message, name);
+						
+						if (found != null){
+							message.channel.overwritePermissions(found.user, {
+								SEND_MESSAGES: true
+								})
+								.then(() => console.log("User " + found.user.username + " has been unmuted"))
+								.catch(e => console.log("Error muting user!"));
+						} else {
+							message.channel.sendMessage("Could not find a user with that name/nickname");
+						}
+					}
+				}
+		}
 	    
 	    
 	} 
@@ -230,10 +267,29 @@ client.on("guildMemberAdd", (member) => {
 });
 
 
-client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
-//client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
+//client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
+client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
 
- function hasModPerms(input) {
+// @param input: input message
+// @param name: Nickname or Username
+// @return GuildMember: Member obj or null
+function findUser(input, name){
+	
+	var memberList = input.guild.members.array();
+	var foundMember = null;
+	
+	for (var i = 0; i < memberList.length; i++){
+		if (memberList[i].nickname == name){
+			foundMember = memberList[i];
+		} else if (memberList[i].user.username == name){
+			foundMember = memberList[i];
+		}
+	}
+	console.log("Found user");
+	return foundMember;
+}
+
+function hasModPerms(input) {
 	 
 	var modPerms = [ "MANAGE_MESSAGES", "MANAGE_ROLES_OR_PERMISSIONS" ];
 	
