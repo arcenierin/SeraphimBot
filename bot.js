@@ -45,6 +45,21 @@ client.on('message', message => {
 			message.reply('You are not a moderator');
 		}	
     }
+	// this doesn't work
+	else if (message.content === "!mutechannel"){
+		if (hasModPerms(message)){
+			
+			var everyoneRole = message.guild.roles.find('name', '@everyone');
+			message.channel.overwritePermissions(everyoneRole, {
+					SEND_MESSAGES: false
+			})
+			.then(() => message.channel.sendMessage("This channel has been muted"))
+			.catch(e => console.log(e));
+			
+		} else {
+			// No mod perms
+		}
+	}
     else if(message.content === "!log"){
 	var output = "";
 	for(index = 0; index < messages.length; ++index){
@@ -246,10 +261,10 @@ client.on('message', message => {
 					if(splitMessage.length >= 3){
 						
 						var roleToFind = splitMessage[1];
-						var userToFind = "";
+						var userToFind = splitMessage[2];
 						
 						// Build the user name, for when there are spaces in the name
-						for (var i = 2; i < splitMessage.length; i++){
+						for (var i = 3; i < splitMessage.length; i++){
 							userToFind = userToFind + " " + splitMessage[i];
 						}
 						
@@ -274,6 +289,45 @@ client.on('message', message => {
 					} else {
 						// improper syntax
 						message.channel.sendMessage("Improper syntax. Proper use: !addrole <role> <username>, spaces in the username are okay");
+					}
+				} else {
+					// No mod perms
+					message.channel.sendMessage("You do not have moderator permissions");
+				}
+		}
+			else if (splitMessage[0] === "!removerole"){
+				if (hasModPerms(message)){
+					if(splitMessage.length >= 3){
+						
+						var roleToFind = splitMessage[1];
+						var userToFind = splitMessage[2];
+						
+						// Build the user name, for when there are spaces in the name
+						for (var i = 3; i < splitMessage.length; i++){
+							userToFind = userToFind + " " + splitMessage[i];
+						}
+						
+						var foundUser = findUser(message, userToFind);
+						var foundRole = message.guild.roles.find('name', roleToFind);
+			
+						
+						if (foundUser != null){
+							if (foundRole != null){
+								
+								foundUser.removeRole(foundRole.id)
+									.then(() => message.channel.sendMessage("Removed role " + roleToFind + " from " + userToFind))
+									.catch(() => message.channel.sendMessage("Error removing role, I probably don't have the proper permissions"));	
+							} else {
+								// no role
+								message.channel.sendMessage("The role: " + roleToFind + " does not exist");
+							}
+						} else {
+							// user not found
+							message.channel.sendMessage("The user: " + userToFind + " does not exist");
+						}
+					} else {
+						// improper syntax
+						message.channel.sendMessage("Improper syntax. Proper use: !removerole <role> <username>, spaces in the username are okay");
 					}
 				} else {
 					// No mod perms
