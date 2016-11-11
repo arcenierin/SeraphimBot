@@ -77,18 +77,23 @@ client.on('message', message => {
     else if(message.content === "!help"){
     }
     else if(message.content === "!groups"){
-	console.log("Getting groups...");
-	var output = "```";
-	for(i = 0; i < events.length; i++){
-	    var event = events[i];
-	    output += "ID: "+event.id+", "+event.name+"\n";
-	}
-	output += "```\nTo get more specific details about a group, type !group <id>.";
-	message.channel.sendMessage(output);
+		if(events.length != 0){
+			console.log("Getting groups...");
+			var output = "```";
+			for(i = 0; i < events.length; i++){
+				var event = events[i];
+				output += "ID: "+event.id+", "+event.name+"\n";
+			}
+			output += "```\nTo get more specific details about a group, type !group <id>.";
+			message.channel.sendMessage(output);
+		}
+		else{
+			message.channel.sendMessage("There are no groups, use !post to create one.");
+		}
+		
     }
     else if(message.content.split(' ').length >= 1){
 		var splitMessage = message.content.split(' ');
-		//syntax: !event new 'Event name' time (00:00) timezone (CST, CET, CEST etc)
 	    	
 		if(splitMessage[0] === "!post")
 		{
@@ -163,7 +168,7 @@ client.on('message', message => {
 					}
 				}
 					
-				var event = new Events.Event(events.length+1, fullName, splitMessage[2 + n], splitMessage[3 + n]); 
+				var event = new Events.Event(events.length+1, fullName, splitMessage[2 + n], splitMessage[3 + n], message.member.user.username); 
 				
 				message.channel.sendMessage("```\n================================\n"+fullName+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================```");
 				Events.addPlayer(event, message.member);
@@ -176,49 +181,75 @@ client.on('message', message => {
 				console.log(err.message);
 			}
 		}
-	    	else if(splitMessage[0] == "!group"){
+	    else if(splitMessage[0] == "!group"){
 			if(splitMessage.length == 2){
 				var id = splitMessage[1];
-				var event = events[parseInt(id) - 1];
-				output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================"+"\nRoster:\n";
-				var playerIndex = 1;
-				for(i = 0; i < event.players.length; i++){
-					output += playerIndex+". "+event.players[i].user.username+"\n";
-					++playerIndex;
+				if(id - 1 < events.length && id > 0){
+					var event = events[parseInt(id) - 1];
+					output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================"+"\nRoster:\n";
+					var playerIndex = 1;
+					for(i = 0; i < event.players.length; i++){
+						output += playerIndex+". "+event.players[i].user.username+"\n";
+						++playerIndex;
+					}
+					output+="```";
+					message.channel.sendMessage(output);
 				}
-				output+="```";
-				message.channel.sendMessage(output);
+			}
+			
+			
+		}
+	    else if(splitMessage[0] == "!joingroup"){
+			if(splitMessage.length == 2){
+				var id = splitMessage[1];
+				if(id - 1 < events.length && id > 0){
+					var event = events[parseInt(id) - 1];
+					Events.addPlayer(event, message.member);
+					message.reply("added you to "+event.name);
+				}
+				
+			}
+		}
+	    else if(splitMessage[0] == "!leavegroup"){
+			if(splitMessage.length == 2){
+				if(id - 1 < events.length && id > 0){
+					var id = splitMessage[1];
+					var event = events[parseInt(id) - 1];
+					Events.removePlayer(event, message.member.user.username);
+				}
+			}
+		}
+		else if(splitMessage[0] === "!removegroup"){
+			if(splitMessage.length == 2){
+				var id = splitMessage[1];
+				if(id - 1 < events.length && id > 0){
+					var event = events[parseInt(id) - 1]
+					if(hasModPerms(message) || message.member.user.username === event.creater){
+						events.splice(id - 1, 1);
+					}
+					else{
+						message.channel.sendMessage("You can't delete that group because you are not the creator!");
+					}
+				}
 			}
 			
 		}
-	    	else if(splitMessage[0] == "!joingroup"){
+		
+    	else if(splitMessage[0] === "!rolecall"){
 			if(splitMessage.length == 2){
 				var id = splitMessage[1];
-				var event = events[parseInt(id) - 1];
-				Events.addPlayer(event, message.member);
-				message.reply("added you to "+event.name);
-			}
-		}
-	        else if(splitMessage[0] == "!leavegroup"){
-			if(splitMessage.length == 2){
-				var id = splitMessage[1];
-				var event = events[parseInt(id) - 1];
-				Events.removePlayer(event, message.member.user.username);
-			}
-		}
-	    	else if(splitMessage[0] == "!rolecall"){
-			if(splitMessage.length == 2){
-				var id = splitMessage[1];
-				var event = events[parseInt(id) - 1];
-				var output = "Rolecall for "+event.name+" at "+event.startTime+" "+event.timeZone+"\n";
-				for(i = 0; i < event.players.length; i++){
-					var userToPing = event.players[i].user;
-					output += userToPing;
+				if(id - 1 < events.length && id > 0){
+					var event = events[parseInt(id) - 1];
+					var output = "Rolecall for "+event.name+" at "+event.startTime+" "+event.timeZone+"\n";
+					for(i = 0; i < event.players.length; i++){
+						var userToPing = event.players[i].user;
+						output += userToPing;
+					}
+					message.channel.sendMessage(output);
 				}
-				message.channel.sendMessage(output);
 			}
 		}
-			else if (splitMessage[0] === "!muteuser"){
+		else if (splitMessage[0] === "!muteuser"){
 				if (hasModPerms(message)){
 					if(splitMessage.length == 2){
 						
