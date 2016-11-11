@@ -241,6 +241,45 @@ client.on('message', message => {
 					}
 				}
 		}
+			else if (splitMessage[0] === "!addrole"){
+				if (hasModPerms(message)){
+					if(splitMessage.length >= 3){
+						
+						var roleToFind = splitMessage[1];
+						var userToFind = "";
+						
+						// Build the user name, for when there are spaces in the name
+						for (var i = 2; i < splitMessage.length; i++){
+							userToFind = userToFind + " " + splitMessage[i];
+						}
+						
+						var foundUser = findUser(message, userToFind);
+						var foundRole = message.guild.roles.find('name', roleToFind);
+			
+						
+						if (foundUser != null){
+							if (foundRole != null){
+								
+								foundUser.addRole(foundRole.id)
+									.then(() => message.channel.sendMessage("Added role " + roleToFind + " to " + userToFind))
+									.catch(() => message.channel.sendMessage("Error adding role, I probably don't have the proper permissions"));	
+							} else {
+								// no role
+								message.channel.sendMessage("The role: " + roleToFind + " does not exist");
+							}
+						} else {
+							// user not found
+							message.channel.sendMessage("The user: " + userToFind + " does not exist");
+						}
+					} else {
+						// improper syntax
+						message.channel.sendMessage("Improper syntax. Proper use: !addrole <role> <username>, spaces in the username are okay");
+					}
+				} else {
+					// No mod perms
+					message.channel.sendMessage("You do not have moderator permissions");
+				}
+		}
 	    
 	    
 	} 
@@ -271,21 +310,43 @@ client.on("guildMemberAdd", (member) => {
 client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
 
 // @param input: input message
-// @param name: Nickname or Username
+// @param name: Nickname or Username, SPACES ALLOWED
 // @return GuildMember: Member obj or null
 function findUser(input, name){
 	
 	var memberList = input.guild.members.array();
 	var foundMember = null;
 	
+	var username = null;
+	var nickname = null;
+	
 	for (var i = 0; i < memberList.length; i++){
-		if (memberList[i].nickname == name){
+		
+		if (memberList[i].nickname != null){
+			nickname = memberList[i].nickname.trim();
+		} else {
+			nickname = null;
+		}
+		
+		if (memberList[i].user.username != null){
+			username = memberList[i].user.username.trim();
+		} else {
+			username = null;
+		}
+		
+		if (memberList[i].nickname == name.trim()){
 			foundMember = memberList[i];
-		} else if (memberList[i].user.username == name){
+		} else if (memberList[i].user.username == name.trim()){
 			foundMember = memberList[i];
 		}
+		//console.log("Nickname: " + memberList[i].nickname);
+		//console.log("Username: " + memberList[i].user.username);
 	}
-	console.log("Found user");
+	if (foundMember != null){
+		console.log("Found user");
+	} else {
+		console.log("Could not find user");
+	}
 	return foundMember;
 }
 
