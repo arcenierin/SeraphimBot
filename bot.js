@@ -212,8 +212,9 @@ client.on('message', message => {
 		}
 	    else if(splitMessage[0] == "!leavegroup"){
 			if(splitMessage.length == 2){
+				var id = splitMessage[1];
 				if(id - 1 < events.length && id > 0){
-					var id = splitMessage[1];
+					
 					var event = events[parseInt(id) - 1];
 					Events.removePlayer(event, message.member.user.username);
 				}
