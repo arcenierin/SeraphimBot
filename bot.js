@@ -215,7 +215,6 @@ client.on('message', message => {
 						if(playerIndex==7)
 						{
 							output += "Substitutes:\n";
-							subs = 0;
 						}
 						output += playerIndex+". "+event.players[i].user.username+"\n";
 						++playerIndex;
