@@ -105,7 +105,7 @@ client.on('message', message => {
 			var output = "```";
 			for(i = 0; i < events.length; i++){
 				var event = events[i];
-				output += "ID: "+event.id+", "+event.name+ ", Start Time: "+event.startTime"\n";
+				output += "ID: "+event.id+", "+event.name+ ", Start Time: "+event.startTime + "-"+event.timeZone +"\n";
 			}
 			output += "```\nTo get more specific details about a group, type !group <id>.";
 			message.channel.sendMessage(output);
