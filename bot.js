@@ -89,7 +89,7 @@ client.on('message', message => {
 			"!ping  :  A tiny bit about the bot\n\n" +
 			
 			"**LFG Commands**\n" +
-			"!post <activity> <time> <timezone>  :  Creates a new group. <activity> can be an abbreviation like wotm or vog. If you do not enter a recognized abbreviation, it will take whatever you entered. You can also add -n or -h to the activity to show normal or hard mode\n" +
+			"!post <activity> <time> <timezone>  :  Creates a new group. <activity> can be an abbreviation like wotm or vog. If you do not enter a recognized abbreviation, it will take whatever you entered. You can also add -n or -h to the activity to show normal or hard mode. To use a name with spaces in it put \" around it. \n" +
 			"!groups  :  Displays all active groups\n" +
 			"!group <ID>  :  Displays a specific group with the given ID\n" +
 			"!joingroup <ID>  :  Join the group with the given ID\n" +
