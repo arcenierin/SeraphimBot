@@ -248,7 +248,10 @@ client.on('message', message => {
 				var id = splitMessage[1];
 				if(id - 1 < events.length && id > 0){
 					var event = events[parseInt(id) - 1]
-					if(message.member.user.username == event.creater){
+					var eventC = String(event.creator);
+					var messageC = String(message.member.user.username);
+					
+					if(eventC === messageC){
 						events.splice(id - 1, 1);
 					}
 					else if(hasModPerms(message)){
@@ -466,8 +469,14 @@ function findUser(input, name){
 }
 
 function hasModPerms(input) {
-	 
-	var modPerms = [ "MANAGE_MESSAGES", "MANAGE_ROLES_OR_PERMISSIONS" ];
+	try{
+ 
+		var modPerms = [ "MANAGE_MESSAGES", "MANAGE_ROLES_OR_PERMISSIONS" ];
 	
-	return input.member.permissions.hasPermissions(modPerms, true);
+		return input.member.permissions.hasPermissions(modPerms, true);
+	}
+	catch(err){
+		console.log(err.message);
+	}
+
 } 
