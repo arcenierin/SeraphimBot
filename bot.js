@@ -46,7 +46,7 @@ client.on('message', message => {
 		}	
     }
 	// this doesn't work
-	else if (message.content === "!mutechannel"){
+	/*else if (message.content === "!mutechannel"){
 		if (hasModPerms(message)){
 			
 			var everyoneRole = message.guild.roles.find('name', '@everyone');
@@ -59,7 +59,7 @@ client.on('message', message => {
 		} else {
 			// No mod perms
 		}
-	}
+	} */
     else if(message.content === "!log"){
 	var output = "";
 	for(index = 0; index < messages.length; ++index){
@@ -75,6 +75,29 @@ client.on('message', message => {
 	});
     }
     else if(message.content === "!help"){
+		var output = "";
+		
+		if (hasModPerms(message)){
+			output = "**Mod Commands**\n" +
+					 "!clear  :  Clears recent messages in the channel\n" +
+					 "!addrole <role> <username>  : adds the role to user, if both exist\n" +
+					 "!removerole <role> <username>  : removes the role from the user, if both exist\n\n";
+		}
+		
+		output = output +
+			"**General Commands**\n" +
+			"!ping  :  A tiny bit about the bot\n\n" +
+			
+			"**LFG Commands**\n" +
+			"!post <activity> <time> <timezone>  :  Creates a new group. <activity> can be an abbreviation like wotm or vog. If you do not enter a recognized abbreviation, it will take whatever you entered. You can also add -n or -h to the activity to show normal or hard mode\n" +
+			"!groups  :  Displays all active groups\n" +
+			"!group <ID>  :  Displays a specific group with the given ID\n" +
+			"!joingroup <ID>  :  Join the group with the given ID\n" +
+			"!leavegroup <ID>  :  Leave the group with the given ID\n" +
+			"!removegroup <ID>  :  Removes the group with the given ID. Removed groups erased and can no longer be joined. Only the creator can use this\n" +
+			"!rolecall <ID>  :  @ mentions everyone in the given group. Please do not abuse this.";
+			
+		message.channel.sendMessage(output);	
     }
     else if(message.content === "!groups"){
 		if(events.length != 0){
@@ -250,6 +273,7 @@ client.on('message', message => {
 				}
 			}
 		}
+		/*
 		else if (splitMessage[0] === "!muteuser"){
 				if (hasModPerms(message)){
 					if(splitMessage.length == 2){
@@ -288,6 +312,7 @@ client.on('message', message => {
 					}
 				}
 		}
+		*/
 			else if (splitMessage[0] === "!addrole"){
 				if (hasModPerms(message)){
 					if(splitMessage.length >= 3){
