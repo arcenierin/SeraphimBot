@@ -212,6 +212,11 @@ client.on('message', message => {
 					output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================"+"\nRoster:\n";
 					var playerIndex = 1;
 					for(i = 0; i < event.players.length; i++){
+						if(playerIndex==7)
+						{
+							output += "Substitutes:\n";
+							subs = 0;
+						}
 						output += playerIndex+". "+event.players[i].user.username+"\n";
 						++playerIndex;
 					}
