@@ -248,10 +248,14 @@ client.on('message', message => {
 				var id = splitMessage[1];
 				if(id - 1 < events.length && id > 0){
 					var event = events[parseInt(id) - 1]
-					if(hasModPerms(message) || message.member.user.username === event.creater){
+					if(message.member.user.username == event.creater){
+						events.splice(id - 1, 1);
+					}
+					else if(hasModPerms(message)){
 						events.splice(id - 1, 1);
 					}
 					else{
+						console.log(message.member.user.username + ", "+event.creator);
 						message.channel.sendMessage("You can't delete that group because you are not the creator!");
 					}
 				}
@@ -408,7 +412,7 @@ client.on("guildMemberAdd", (member) => {
 		{
 			client.channels.array()[i].sendMessage("Welcome to Seraphim Elite "+member.user+", make sure you read the rules in # welcome-read-me, and feel free to introduce yourself to the rest of the clan! If you haven't already, you can set Seraphim Elite as your active clan at: https://www.bungie.net/en/Clan/Detail/1792005");
 			//console.log(client.channels.array()[i].guild.roles);
-			var initRole = client.channels.array()[i].guild.roles.find('name', 'INITIATE');
+			var initRole = client.channels.array()[i].guild.roles.find('name', 'Initiate');
 			//console.log(client.channels.array()[i].guild.roles);
 			member.addRole(initRole.id);
 		}
