@@ -105,7 +105,7 @@ client.on('message', message => {
 			var output = "```";
 			for(i = 0; i < events.length; i++){
 				var event = events[i];
-				output += "ID: "+event.id+", "+event.name+"\n";
+				output += "ID: "+event.id+", "+event.name+ ", Start Time: "+event.startTime + "-"+event.timeZone +"\n";
 			}
 			output += "```\nTo get more specific details about a group, type !group <id>.";
 			message.channel.sendMessage(output);
@@ -212,6 +212,10 @@ client.on('message', message => {
 					output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================"+"\nRoster:\n";
 					var playerIndex = 1;
 					for(i = 0; i < event.players.length; i++){
+						if(playerIndex==7)
+						{
+							output += "Substitutes:\n";
+						}
 						output += playerIndex+". "+event.players[i].user.username+"\n";
 						++playerIndex;
 					}
