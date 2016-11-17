@@ -176,10 +176,11 @@ client.on('message', message => {
 						for(i = 0; i < pastMsgs.array().length; i++){
 							var msg = pastMsgs.array()[i];
 							var msgUsr = String(msg.member.user.username);
-							console.log(msgUsr +" "+msg);
+							console.log(msgUsr +", "+name);
 							if(msgUsr === name){
 								msg.delete();
 							}
+							
 						}
 					});
 					messagePromise.catch(function (err){
