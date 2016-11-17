@@ -135,8 +135,37 @@ client.on('message', message => {
     }
     else if(message.content.split(' ').length >= 1){
 		var splitMessage = message.content.split(' ');
-	    	
-		if(splitMessage[0] === "!post")
+	    	if(splitMessage[0] === "!clear"){
+			var amount = splitMessage[1];
+			if (hasModPerms(message)){
+			
+				var msgPromise = message.channel.fetchMessages({limit: amount}); 
+			
+				msgPromise.then(function (pastMsgs) {
+					console.log('Finished fetching messages...');
+					var promiseArray = pastMsgs.deleteAll();
+			
+					console.log(promiseArray.length);
+			
+					for (var i = 0; i < promiseArray.length; i++){
+						promiseArray[i].then(function (test){
+							console.log('Message deleted '+i+'/'+amount);
+						});
+						promiseArray[i].catch(function (err){
+							console.log('FAILURE DELETING MESSAGE', err);
+						});
+					}
+				});
+			
+				msgPromise.catch(function (err){
+					console.log('WE GOT ERR - 1', err);
+				});		
+						
+			} else {
+				message.reply('You are not a moderator');
+			}
+		}
+		else if(splitMessage[0] === "!post")
 		{
 			
 			console.log("Creating new event...");
