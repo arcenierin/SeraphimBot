@@ -166,12 +166,13 @@ client.on('message', message => {
 			}
 		}
 	    	else if(splitMessage[0] === "!clearuser"){
-			if(splitMessage.length === 3){
+			if(splitMessage.length == 3){
 				var name = splitMessage[1];
 				var amount = splitMessage[2];
 				if(hasModPerms(message)){
 					var messagePromise = message.channel.fetchMessages({limit: amount});
 					messagePromise.then(function (pastMsgs) {
+						console.log(messagePromise);
 						for(i = 0; i < pastMsgs.array().length; i++){
 							var msg = pastMsgs.array()[i];
 							var msgUsr = String(msg.member.user.username);
