@@ -178,7 +178,7 @@ client.on('message', message => {
 							var msgUsr = String(msg.member.user.username);
 							console.log(msgUsr +", "+name);
 							if(msgUsr === name){
-								msg.delete();
+								//msg.delete(); //(node:24522) UnhandledPromiseRejectionWarning: Unhandled promise rejection (rejection id: 2): Error: Bad Request
 							}
 							
 						}
