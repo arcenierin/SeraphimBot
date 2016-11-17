@@ -74,6 +74,20 @@ client.on('message', message => {
 		console.log("Wrote log.");
 	});
     }
+	else if (message.content === "!allstar"){
+		message.channel.sendMessage("https://www.youtube.com/watch?v=L_jWHffIx5E");
+		message.channel.sendMessage("Someboy once told me.....");
+	}
+	else if (message.content === "!friday"){
+		
+		var today = new Date();
+		
+		if (today.getDay() == 5){
+			message.channel.sendMessage("https://www.youtube.com/watch?v=kfVsfOSbJY0");
+		} else {
+			message.channel.sendMessage("Today is not Friday");
+		}	
+	}
     else if(message.content === "!help"){
 		var output = "";
 		
@@ -284,6 +298,76 @@ client.on('message', message => {
 				}
 			}
 		}
+		
+		else if (splitMessage[0] === "!addtogroup"){
+			if (splitMessage.length >= 3){
+				
+				var id = splitMessage[1];
+				
+				if (id - 1 < events.length && id > 0){
+					
+					var event = events[parseInt(id) - 1];
+					var userToFind = splitMessage[2];
+						
+					// Build the user name, for when there are spaces in the name
+					for (var i = 3; i < splitMessage.length; i++){
+						userToFind = userToFind + " " + splitMessage[i];
+					}
+					var foundUser = findUser(message, userToFind);
+				
+					if (foundUser != null) {
+						// All is good, add user to group
+						Events.addPlayer(event, foundUser);
+						message.channel.sendMessage("Added " + foundUser.user.username + " to group " + id);
+					
+					} else {
+						// Could not find user
+						message.channel.sendMessage("I could not find that user");
+					}
+				} else {
+					// Could not find event
+					message.channel.sendMessage("I could not find that event");
+				}
+			} else {
+				//Missing parameters
+				message.channel.sendMessage("There are missing parameters. Here is a usage example: \n```!addtogroup 1 Reusableduckk```");
+			}
+		}
+		
+		else if (splitMessage[0] === "!removefromgroup"){
+			if (splitMessage.length >= 3){
+				
+				var id = splitMessage[1];
+				
+				if (id - 1 < events.length && id > 0){
+					
+					var event = events[parseInt(id) - 1];
+					var userToFind = splitMessage[2];
+						
+					// Build the user name, for when there are spaces in the name
+					for (var i = 3; i < splitMessage.length; i++){
+						userToFind = userToFind + " " + splitMessage[i];
+					}
+					var foundUser = findUser(message, userToFind);
+				
+					if (foundUser != null) {
+						// All is good, add user to group
+						Events.removePlayer(event, foundUser.user.username);
+						message.channel.sendMessage("Removed " + foundUser.user.username + " from group " + id);
+					
+					} else {
+						// Could not find user
+						message.channel.sendMessage("I could not find that user");
+					}
+				} else {
+					// Could not find event
+					message.channel.sendMessage("I could not find that group");
+				}
+			} else {
+				//Missing parameters
+				message.channel.sendMessage("There are missing parameters. Here is a usage example: \n```!removefromgroup 1 Reusableduckk```");
+			}
+		}
 		/*
 		else if (splitMessage[0] === "!muteuser"){
 				if (hasModPerms(message)){
@@ -428,8 +512,23 @@ client.on("guildMemberAdd", (member) => {
 });
 
 
-client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
-//client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
+//client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
+client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
+
+// returns event
+// null if id is not found
+function findEvent(eID){
+	
+	var result = null;
+	
+	for(var i = 0; i < events.length; i++){
+		if (events[i].id = eID){
+			result = events[i];
+		}
+	}
+	
+	return result;
+}
 
 // @param input: input message
 // @param name: Nickname or Username, SPACES ALLOWED
