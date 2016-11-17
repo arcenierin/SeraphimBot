@@ -273,11 +273,23 @@ client.on('message', message => {
 					var eventC = String(event.creator);
 					var messageC = String(message.member.user.username);
 					
-					if(eventC === messageC){
+					if(hasModPerms(message)){
 						events.splice(id - 1, 1);
+						for(i = 0; i < events.length; i++){
+							if(i > id){
+								events[i].id = events[i].id - 1;
+							}
+						}
 					}
-					else if(hasModPerms(message)){
+					
+					else if(eventC === messageC){
 						events.splice(id - 1, 1);
+						for(i = 0; i < events.length; i++){
+							events[i].id = events[i].id - 1;
+							if(i > id){
+								events[i].id = events[i].id - 1;
+							}
+						}
 					}
 					else{
 						console.log(message.member.user.username + ", "+event.creator);
