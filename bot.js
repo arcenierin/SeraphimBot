@@ -165,6 +165,32 @@ client.on('message', message => {
 				message.reply('You are not a moderator');
 			}
 		}
+	    	else if(splitMessage[0] === "!clearuser"){
+			if(splitMessage.length === 3){
+				var name = splitMessage[1];
+				var amount = splitMessage[2];
+				if(hasModPerms(message)){
+					var messagePromise = message.channel.fetchMessages({limit: amount});
+					messagePromise.then(function (pastMsgs) {
+						for(i = 0; i < pastMsgs.array().length; i++){
+							var msg = pastMsgs.array()[i];
+							var msgUsr = String(msg.member.user.username);
+							if(msgUsr === name){
+								msg.delete();
+							}
+						}
+					});
+					messagePromise.catch(function (err){
+						console.loh(err);
+					});
+					
+				}
+			}
+			else{
+				message.channel.sendMessage("Incorrent syntax, please use: !clearuser <name> <amount>");
+			}
+				
+		}
 		else if(splitMessage[0] === "!post")
 		{
 			
