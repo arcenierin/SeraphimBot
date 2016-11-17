@@ -76,7 +76,7 @@ client.on('message', message => {
     }
 	else if (message.content === "!allstar"){
 		message.channel.sendMessage("https://www.youtube.com/watch?v=L_jWHffIx5E");
-		message.channel.sendMessage("Someboy once told me.....");
+		message.channel.sendMessage("Somebody once told me.....");
 	}
 	else if (message.content === "!friday"){
 		
@@ -87,6 +87,10 @@ client.on('message', message => {
 		} else {
 			message.channel.sendMessage("Today is not Friday");
 		}	
+	}
+	else if (message.content === "!hepballs"){
+		
+		message.channel.sendMessage("https://youtu.be/Tctfq4tplQ4?t=22s");	
 	}
     else if(message.content === "!help"){
 		var output = "";
