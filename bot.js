@@ -655,15 +655,23 @@ function findUser(input, name){
 	return foundMember;
 }
 function updateGroupsJSON(){
-	fs.exists("events.json", function(exists) {
-		if(exists){
-			fs.unlink("events.json");
+	
+	try{
+		for(i = 0; i < events.length; i++){
+		var eventString = +="\n"+JSON.stringify(events[i]);
+		
 		}
-	});
-	for(i = 0; i < events.length; i++){
-		var eventString = JSON.stringify(events[i]);
-		fs.appendFile('events.json', eventString+"\n");
+		fs.exists("events.json", function(exists) {
+			if(exists){
+				fs.unlink("events.json");
+			}
+		});
+		fs.appendFile('events.json', eventString);
 	}
+	catch(err){
+		console.log(err);
+	}
+	
 }
 
 function updateGroupsList(){
