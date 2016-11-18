@@ -657,8 +657,9 @@ function findUser(input, name){
 function updateGroupsJSON(){
 	
 	try{
+		var eventString = "";
 		for(i = 0; i < events.length; i++){
-		var eventString +="\n"+JSON.stringify(events[i]);
+			eventString += "\n"+JSON.stringify(events[i]);
 		
 		}
 		fs.exists("events.json", function(exists) {
