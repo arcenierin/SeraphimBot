@@ -659,7 +659,7 @@ function updateGroupsJSON(){
 	try{
 		var eventString = "";
 		for(i = 0; i < events.length; i++){
-			eventString += "\n"+JSON.stringify(events[i]);
+			eventString += JSON.stringify(events[i])+"\n";
 		
 		}
 		fs.exists("events.json", function(exists) {
