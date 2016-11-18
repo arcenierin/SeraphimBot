@@ -2,9 +2,11 @@ const Discord = require('discord.js');
 const fs = require('fs');
 const client = new Discord.Client();
 const Events = require('./events/event');
+var colors = require('colors');
 
 client.on('ready', () => {
 	console.log('Client Connected!');	
+	updateGroupsList();
 });
 
 
@@ -279,6 +281,8 @@ client.on('message', message => {
 			{
 				console.log(err.message);
 			}
+			updateGroupsJSON();
+			
 		}
 	    else if(splitMessage[0] == "!group"){
 			if(splitMessage.length == 2){
@@ -309,6 +313,7 @@ client.on('message', message => {
 					var event = events[parseInt(id) - 1];
 					Events.addPlayer(event, message.member);
 					message.reply("added you to "+event.name);
+					updateGroupsJSON();
 				}
 				
 			}
@@ -320,6 +325,7 @@ client.on('message', message => {
 					
 					var event = events[parseInt(id) - 1];
 					Events.removePlayer(event, message.member.user.username);
+					updateGroupsJSON();
 				}
 			}
 		}
@@ -353,6 +359,7 @@ client.on('message', message => {
 						console.log(message.member.user.username + ", "+event.creator);
 						message.channel.sendMessage("You can't delete that group because you are not the creator!");
 					}
+					updateGroupsJSON();
 				}
 			}
 			
@@ -393,6 +400,7 @@ client.on('message', message => {
 						// All is good, add user to group
 						Events.addPlayer(event, foundUser);
 						message.channel.sendMessage("Added " + foundUser.user.username + " to group " + id);
+						updateGroupsJSON();
 					
 					} else {
 						// Could not find user
@@ -425,9 +433,11 @@ client.on('message', message => {
 					var foundUser = findUser(message, userToFind);
 				
 					if (foundUser != null) {
-						// All is good, add user to group
+						// All is good, remove user from group
 						Events.removePlayer(event, foundUser.user.username);
+						
 						message.channel.sendMessage("Removed " + foundUser.user.username + " from group " + id);
+						updateGroupsJSON();
 					
 					} else {
 						// Could not find user
@@ -586,8 +596,8 @@ client.on("guildMemberAdd", (member) => {
 });
 
 
-client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
-//client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
+//client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
+client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
 
 // returns event
 // null if id is not found
@@ -644,7 +654,38 @@ function findUser(input, name){
 	}
 	return foundMember;
 }
+function updateGroupsJSON(){
+	fs.exists("events.json", function(exists) {
+		if(exists){
+			fs.unlink("events.json");
+		}
+	});
+	for(i = 0; i < events.length; i++){
+		var eventString = JSON.stringify(events[i]);
+		fs.appendFile('events.json', eventString+"\n");
+	}
+}
 
+function updateGroupsList(){
+	fs.exists("events.json", function(exists){
+		if(exists){
+			var lineReader = require("readline").createInterface({
+				input: fs.createReadStream("events.json")
+			});
+			
+			lineReader.on('line', function(line){
+				var eventObj = JSON.parse(String(line));
+				events.push(eventObj);
+				console.log("Adding event: "+eventObj.name+"".green);
+			});
+		}
+		else{
+			console.log("Event file does not exist.");
+		}
+		
+	});
+	
+}
 function hasModPerms(input) {
 	try{
  
