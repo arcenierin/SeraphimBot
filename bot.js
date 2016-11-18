@@ -596,8 +596,8 @@ client.on("guildMemberAdd", (member) => {
 });
 
 
-//client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
-client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
+client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
+//client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
 
 // returns event
 // null if id is not found
@@ -676,7 +676,7 @@ function updateGroupsList(){
 			lineReader.on('line', function(line){
 				var eventObj = JSON.parse(String(line));
 				events.push(eventObj);
-				console.log("Adding event: "+eventObj.name+"".green);
+				console.log("Adding event: "+eventObj.name);
 			});
 		}
 		else{
