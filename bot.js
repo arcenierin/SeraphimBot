@@ -719,7 +719,31 @@ function updateGroupsJSON(){
 	
 }
 
+function exitHandler(options, err) {
+    if (options.cleanup) {
+	    console.log("Saving groups...")
+	    updateGroupsJSON();
+	    
+    }
+    else if (err) 
+    {
+	    console.log(err.stack);
+    }
+    else if (options.exit) {
+	    //CTRL-C
+	    console.log("Saving groups...")
+	    updateGroupsJSON();
+	    process.exit();
+	    
+    }
+}
 
+/
+process.on('exit', exitHandler.bind(null,{cleanup:true}));
+
+process.on('SIGINT', exitHandler.bind(null, {exit:true}));
+
+process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 
 function updateGroupsList(){
 	fs.exists("events.json", function(exists){
