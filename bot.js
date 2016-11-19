@@ -3,15 +3,41 @@ const fs = require('fs');
 const client = new Discord.Client();
 const Events = require('./events/event');
 var colors = require('colors');
+var express = require('express');
+var bodyParser = require('body-parser');
+var path = require('path');
 
+var app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use('/home', express.static('/home'));
+
+var messages = [];
+var events = [];
+
+var routes = require('./routes/routes')(app);
+var server = app.listen(8080, function() {
+	console.log("Listening on port: %s", server.address().port);
+});
+app.get('/groups/', function(req, res){
+	return res.send(JSON.stringify(events));
+});
+app.get('/groups/:groupId', function(req, res){
+	var id = req.params['groupId'];
+	for(i = 0; i < events.length; i++){
+		if(events[i].id == id){
+			return res.send(JSON.stringify(events[i]));
+		}
+	}
+	return res.end("No groups were found :(");
+});
 client.on('ready', () => {
 	console.log('Client Connected!');	
 	updateGroupsList();
 });
 
 
-var messages = [];
-var events = [];
+
 client.on('message', message => {
     messages.push(message);
     if(message.content === "!ping"){
@@ -699,23 +725,25 @@ function findUserNoMsg(name){
 	return foundMember;
 }
 function updateGroupsJSON(){
-	
-	try{
-		var eventString = "";
-		for(i = 0; i < events.length; i++){
-			eventString += JSON.stringify(events[i])+"\n";
+	if(events.length > 0){
+		try{
+			var eventString = "";
+			for(i = 0; i < events.length; i++){
+				eventString += JSON.stringify(events[i])+"\n";
 		
+			}		
+			fs.exists("home/events.json", function(exists) {
+				if(exists){
+					fs.unlink("events.json");
+				}
+			});
+			fs.appendFile('home/events.json', eventString);
 		}
-		fs.exists("events.json", function(exists) {
-			if(exists){
-				fs.unlink("events.json");
-			}
-		});
-		fs.appendFile('events.json', eventString);
+		catch(err){
+			console.log(err);
+		}
 	}
-	catch(err){
-		console.log(err);
-	}
+	
 	
 }
 
@@ -743,10 +771,10 @@ process.on('SIGINT', exitHandler.bind(null, {exit:true}));
 process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 
 function updateGroupsList(){
-	fs.exists("events.json", function(exists){
+	fs.exists("home/events.json", function(exists){
 		if(exists){
 			var lineReader = require("readline").createInterface({
-				input: fs.createReadStream("events.json")
+				input: fs.createReadStream("home/events.json")
 			});
 			
 			lineReader.on('line', function(line){
