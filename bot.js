@@ -731,9 +731,10 @@ function updateGroupsList(){
 			lineReader.on('line', function(line){
 				var eventObj = JSON.parse(String(line));
 				var rePlayers = [];
-				for(i = 0; i < eventObj.players; i ++){
-					var p = findUserNoMsg(eventObj.players[i]);
-					console.log(p);
+				
+				for(i = 0; i < eventObj.players.length; i ++){
+					var p = findUserNoMsg(eventObj.players[i].user.username);
+					console.log("PLAYER: "+p);
 					rePlayers.push(p);
 					
 				}
