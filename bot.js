@@ -731,8 +731,6 @@ function exitHandler(options, err) {
     }
     else if (options.exit) {
 	    //CTRL-C
-	    console.log("Saving groups...")
-	    updateGroupsJSON();
 	    process.exit();
 	    
     }
