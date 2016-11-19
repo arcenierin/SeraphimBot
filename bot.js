@@ -738,7 +738,6 @@ function exitHandler(options, err) {
     }
 }
 
-/
 process.on('exit', exitHandler.bind(null,{cleanup:true}));
 
 process.on('SIGINT', exitHandler.bind(null, {exit:true}));
