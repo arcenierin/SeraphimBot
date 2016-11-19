@@ -654,6 +654,50 @@ function findUser(input, name){
 	}
 	return foundMember;
 }
+function findUserNoMsg(name){
+	var g = null;
+	for(i = 0; i < client.channels.array().length; ++i){
+		if(client.channels.array()[i].name == "general")
+		{
+			g = client.channels.array()[i].guild;
+		}
+		
+	}
+	var memberList = g.members.array();
+	var foundMember = null;
+	
+	var username = null;
+	var nickname = null;
+	
+	for (var i = 0; i < memberList.length; i++){
+		
+		if (memberList[i].nickname != null){
+			nickname = memberList[i].nickname.trim();
+		} else {
+			nickname = null;
+		}
+		
+		if (memberList[i].user.username != null){
+			username = memberList[i].user.username.trim();
+		} else {
+			username = null;
+		}
+		
+		if (memberList[i].nickname == name.trim()){
+			foundMember = memberList[i];
+		} else if (memberList[i].user.username == name.trim()){
+			foundMember = memberList[i];
+		}
+		//console.log("Nickname: " + memberList[i].nickname);
+		//console.log("Username: " + memberList[i].user.username);
+	}
+	if (foundMember != null){
+		console.log("Found user");
+	} else {
+		console.log("Could not find user");
+	}
+	return foundMember;
+}
 function updateGroupsJSON(){
 	
 	try{
@@ -675,6 +719,8 @@ function updateGroupsJSON(){
 	
 }
 
+
+
 function updateGroupsList(){
 	fs.exists("events.json", function(exists){
 		if(exists){
@@ -684,6 +730,12 @@ function updateGroupsList(){
 			
 			lineReader.on('line', function(line){
 				var eventObj = JSON.parse(String(line));
+				var rePlayers = [];
+				for(i = 0; i < eventObj.players; i ++){
+					var p = findUserNoMsg(eventObj[i]);
+					rePlayers.push(p);
+				}
+				eventObj.players = rePlayers;
 				events.push(eventObj);
 				console.log("Adding event: "+eventObj.name);
 			});
