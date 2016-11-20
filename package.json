@@ -3,13 +3,15 @@
   "version": "0.0.0",
   "description": "!",
   "main": "bot.js",
-  "dependencies" : {
-    "discord.js" : "10.0.1", 
-	"colors" : "1.1.2", 
-	"express" : "4.14.0", 
-	"body-parser" : "1.15.2"
+  "dependencies": {
+    "body-parser": "1.15.2",
+    "colors": "1.1.2",
+    "destiny-client": "^0.6.0",
+    "discord.js": "10.0.1",
+    "express": "4.14.0"
+	
   },
-  "engines" : {
+  "engines": {
     "node": "6.9.1"
   }
 }

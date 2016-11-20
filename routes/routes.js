@@ -7,27 +7,22 @@ var appRouter = function(app){
 	app.get("/home", function(req, res){
 		res.sendFile(path.join(__dirname+'/../home/index.html'));
 	});
-	app.get("/groupsremoved", function(req, res){
-		fs.exists("events.json", function(exists){
-		if(exists){
-				var resString = "";
-				var lineReader = require("readline").createInterface({
-					input: fs.createReadStream("events.json")
-				});
-				
-				lineReader.on('line', function(line){
-					resString += line;
-				});
-				lineReader.on('end', function (){
-				});
-				return res.sendFile("events.json");
-			}
-			else{
-				return res.send({"status": "error: No event file found."})
-			}
-		
-		});
+	app.get("/home/groups", function(req, res){
+		res.sendFile(path.join(__dirname+'/../home/groups.html'));
 	});
+	app.get("/home/botwrapper.js", function(req, res){
+		res.sendFile(path.join(__dirname+'/../home/botwrapper.js'));
+	});
+	app.get("/home/events", function(req, res){
+		res.sendFile(path.join(__dirname+'/../home/events.json'));
+	});
+	app.get("/home/links", function(req, res){
+		res.sendFile(path.join(__dirname+'/../home/links.json'));
+	});
+	app.get("/home/fixed-menu.css", function(req, res){
+		res.sendFile(path.join(__dirname+'/../home/fixed-menu.css'));
+	});
+
 }
 
 module.exports = appRouter;

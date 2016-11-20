@@ -6,6 +6,7 @@ var colors = require('colors');
 var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
+var Destiny = require('destiny-client');
 
 var app = express();
 app.use(bodyParser.json());
@@ -14,6 +15,8 @@ app.use('/home', express.static('/home'));
 
 var messages = [];
 var events = [];
+var linked_users = [];
+var destiny = Destiny('af70e027a7694afc8ed613589bf04a60');
 
 var routes = require('./routes/routes')(app);
 var server = app.listen(8080, function() {
@@ -21,6 +24,9 @@ var server = app.listen(8080, function() {
 });
 app.get('/groups/', function(req, res){
 	return res.send(JSON.stringify(events));
+});
+app.get('/links/', function(req, res){
+	return res.send(JSON.stringify(linked_users));
 });
 app.get('/groups/:groupId', function(req, res){
 	var id = req.params['groupId'];
@@ -31,9 +37,19 @@ app.get('/groups/:groupId', function(req, res){
 	}
 	return res.end("No groups were found :(");
 });
+app.get('/groups/:groupId/detail', function(req, res){
+	var id = req.params['groupId'];
+	for(i = 0; i < events.length; i++){
+		if(events[i].id == id){
+			return res.send(events[i].name + "-" +events[i].creator);
+		}
+	}
+	return res.end("No groups were found :(");
+});
 client.on('ready', () => {
 	console.log('Client Connected!');	
 	updateGroupsList();
+	updateLinksList();
 });
 
 
@@ -141,8 +157,8 @@ client.on('message', message => {
 			"!joingroup <ID>  :  Join the group with the given ID\n" +
 			"!leavegroup <ID>  :  Leave the group with the given ID\n" +
 			"!removegroup <ID>  :  Removes the group with the given ID. Removed groups erased and can no longer be joined. Only the creator can use this\n" +
-			"!rolecall <ID>  :  @ mentions everyone in the given group. Please do not abuse this.";
-			
+			"!rolecall <ID>  :  @ mentions everyone in the given group. Please do not abuse this.\n" +
+			"You can also view active groups at: http://seraphimbot.mod.bz/home/groups";
 		message.channel.sendMessage(output);	
     }
     else if(message.content === "!groups"){
@@ -189,10 +205,31 @@ client.on('message', message => {
 					console.log('WE GOT ERR - 1', err);
 				});		
 						
-			} else {
+				} 
+			else {
 				message.reply('You are not a moderator');
+				}
 			}
-		}
+			else if(splitMessage[0] === "!destiny"){
+				if(splitMessage[1] === "link"){
+					if(splitMessage.length == 3){
+						destiny.Search({
+							membershipType: 2, 
+							name: String(splitMessage[2])
+						}).then(res => {
+							var user = res[0];
+							console.log(user);
+							var linker = {discordName: message.member.user.username, destinyId: user.membershipId};
+							console.log(linker);
+							linked_users.push(linker);
+							
+							message.channel.sendMessage("Linked destiny account: "+user.membershipId + " to "+message.member.user.username);
+							updateLinksJSON();
+						});
+						
+					}
+				}
+			}
 	    	else if(splitMessage[0] === "!clearuser"){
 			if(splitMessage.length == 3){
 				var name = String(splitMessage[1]);
@@ -727,17 +764,10 @@ function findUserNoMsg(name){
 function updateGroupsJSON(){
 	if(events.length > 0){
 		try{
-			var eventString = "";
-			for(i = 0; i < events.length; i++){
-				eventString += JSON.stringify(events[i])+"\n";
-		
-			}		
-			fs.exists("home/events.json", function(exists) {
-				if(exists){
-					fs.unlink("events.json");
-				}
-			});
-			fs.appendFile('home/events.json', eventString);
+			var eventString = JSON.stringify(events);
+			
+			fs.writeFile('home/events.json', eventString);
+			
 		}
 		catch(err){
 			console.log(err);
@@ -747,10 +777,38 @@ function updateGroupsJSON(){
 	
 }
 
+function updateLinksJSON(){
+	if(linked_users.length > 0){
+		console.log('Updating links JSON');
+		try{
+			var jsonString = JSON.stringify(linked_users);
+			fs.writeFile("home/links.json", jsonString);
+		}
+		catch(err){
+			console.log(err);
+		}
+	}
+}
+function updateLinksList(){
+	fs.exists("home/links.json", function(exists){
+		if(exists){
+			fs.readFile('home/links.json', (err, data) => {
+				var arrayObject = JSON.parse(data);
+				linked_users = arrayObject;
+			});
+			
+		}
+		else{
+			console.log("Link file does not exist.");
+		}
+		
+	});
+}
 function exitHandler(options, err) {
     if (options.cleanup) {
 	    console.log("Saving groups...")
 	    updateGroupsJSON();
+		updateGroupsList();
 	    
     }
     else if (err) 
@@ -773,25 +831,11 @@ process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 function updateGroupsList(){
 	fs.exists("home/events.json", function(exists){
 		if(exists){
-			var lineReader = require("readline").createInterface({
-				input: fs.createReadStream("home/events.json")
+			fs.readFile('home/events.json', (err, data) => {
+				var jObject = JSON.parse(data); 
+				events = jObject;
 			});
 			
-			lineReader.on('line', function(line){
-				var eventObj = JSON.parse(String(line));
-				var rePlayers = [];
-				
-				for(i = 0; i < eventObj.players.length; i ++){
-					var p = findUserNoMsg(eventObj.players[i].user.username);
-					console.log("PLAYER: "+p);
-					rePlayers.push(p);
-					
-				}
-				console.log("	PLIST: "+rePlayers);
-				eventObj.players = rePlayers;
-				events.push(eventObj);
-				console.log("Adding event: "+eventObj.name);
-			});
 		}
 		else{
 			console.log("Event file does not exist.");

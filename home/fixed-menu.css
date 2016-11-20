@@ -1,0 +1,88 @@
+/* css released under Creative Commons License -  http://creativecommons.org/licenses/by/2.0/deed.en  */
+/* html5 + CSS 3 Template created by miss monorom  http://intensivstation.ch 2013 */
+
+/* reset */
+* {
+margin: 0;
+padding: 0;
+-moz-box-sizing: border-box;
+-webkit-box-sizing: border-box;
+box-sizing: border-box;
+}
+/* render html5 elements as block 
+   rendert html5 elemente als block  */
+
+header, footer, section, aside, nav, article { display: block;}
+
+body {
+background-color: #ccc;
+font-size: 0.95em;
+font-family: Arial, SunSans-Regular, Sans-Serif;
+color:#564b47;
+}
+pre, code {
+font-size: 1.3em;
+}
+a {color: #ff6677;}
+a:visited {color:#ff6677;}
+a:hover {color: #564b47;}
+a:active { color:#000000;}
+
+h1, h2 {
+font-size:1.8em;
+font-weight: normal;
+margin: 0 0 20px;
+}
+
+img.download {vertical-align:middle;}
+img{border:none;}
+
+/* -------------- navigavtion------------- */
+nav {
+font-size: 16px;
+color:#fff;
+	background: #888;
+	width: 250px; 
+	position: fixed;
+	left: 0;
+	top: 0;
+	height:100%;
+	padding:20px;
+}
+
+nav ul { list-style-type: none; }
+nav a {
+color: #fff;
+text-decoration: none;
+line-height:25px;
+}
+nav a:visited {color:#fff;}
+nav a:hover {
+color: #ccc;
+}
+
+/* ----------------- content--------------------- */
+
+
+section#content {
+	padding: 20px;
+	margin:0 0 0 250px;
+	background-color: #fff;
+	max-width: 800px;
+    min-width:550px;
+}
+p, pre{
+padding:  0 0 20px;
+line-height:1.5em;
+}
+
+/* ----------header for logo-------------- */
+header {
+	padding:0 20px 0 0;
+	/*background:url(http://intensivstation.ch/assets/Uploads/html5-bw.png) no-repeat top right;*/
+}
+	
+header img{ padding: 0 0 10px;}
+
+/* -----------footer--------------------------- */
+footer { border-top: 1px solid #ccc; }

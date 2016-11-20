@@ -1,0 +1,98 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "destiny-client",
+        "scope": null,
+        "escapedName": "destiny-client",
+        "name": "destiny-client",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "C:\\Users\\Ben Spencer\\Desktop\\SeraphimBot\\SeraphimBot"
+    ]
+  ],
+  "_from": "destiny-client@latest",
+  "_id": "destiny-client@0.6.0",
+  "_inCache": true,
+  "_location": "/destiny-client",
+  "_nodeVersion": "6.2.2",
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/destiny-client-0.6.0.tgz_1472911484495_0.39763709786348045"
+  },
+  "_npmUser": {
+    "name": "waltercarvalho",
+    "email": "waltervascarvalho@gmail.com"
+  },
+  "_npmVersion": "3.9.5",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "destiny-client",
+    "scope": null,
+    "escapedName": "destiny-client",
+    "name": "destiny-client",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/destiny-client/-/destiny-client-0.6.0.tgz",
+  "_shasum": "afaf4227b5fc47490468940ae9f721c92c43c6f8",
+  "_shrinkwrap": null,
+  "_spec": "destiny-client",
+  "_where": "C:\\Users\\Ben Spencer\\Desktop\\SeraphimBot\\SeraphimBot",
+  "author": {
+    "name": "@waltfy"
+  },
+  "bugs": {
+    "url": "https://github.com/waltfy/destiny/issues"
+  },
+  "dependencies": {
+    "es6-promise": "^2.1.1",
+    "isomorphic-fetch": "^2.1.0",
+    "lodash": "^3.9.1"
+  },
+  "description": "A client for Bungie's Destiny API.",
+  "devDependencies": {
+    "babel": "^5.4.7",
+    "babel-eslint": "^3.1.8",
+    "eslint": "^0.21.2",
+    "uglify-loader": "^1.2.0",
+    "webpack": "^1.9.9"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "afaf4227b5fc47490468940ae9f721c92c43c6f8",
+    "tarball": "https://registry.npmjs.org/destiny-client/-/destiny-client-0.6.0.tgz"
+  },
+  "gitHead": "db1a9caff89867d1c79dab6aa68c65cccb57b9c8",
+  "homepage": "https://github.com/waltfy/destiny",
+  "keywords": [
+    "Bungie",
+    "Destiny",
+    "API",
+    "client"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "name": "waltercarvalho",
+      "email": "me@waltercarvalho.com"
+    }
+  ],
+  "name": "destiny-client",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/waltfy/destiny.git"
+  },
+  "scripts": {},
+  "version": "0.6.0"
+}
