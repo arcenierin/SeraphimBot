@@ -7,6 +7,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
 var Destiny = require('destiny-client');
+var guardianApi = require('./guardiangg/guardian')
 
 var app = express();
 app.use(bodyParser.json());
@@ -17,6 +18,7 @@ var messages = [];
 var events = [];
 var linked_users = [];
 var destiny = Destiny('af70e027a7694afc8ed613589bf04a60');
+var util = require('util');
 
 var routes = require('./routes/routes')(app);
 var server = app.listen(8080, function() {
@@ -158,7 +160,11 @@ client.on('message', message => {
 			"!leavegroup <ID>  :  Leave the group with the given ID\n" +
 			"!removegroup <ID>  :  Removes the group with the given ID. Removed groups erased and can no longer be joined. Only the creator can use this\n" +
 			"!rolecall <ID>  :  @ mentions everyone in the given group. Please do not abuse this.\n" +
-			"You can also view active groups at: http://seraphimbot.mod.bz/home/groups";
+			"You can also view active groups at: http://seraphimbot.mod.bz/home/groups\n\n"+
+			
+			"**Destiny Commands**\n"+
+			"!destiny link <psn_name> : Link your Discord account to your Destiny account\n" +
+			"!destiny elo : Get your current highest Elo from guardian.gg";
 		message.channel.sendMessage(output);	
     }
     else if(message.content === "!groups"){
@@ -229,8 +235,19 @@ client.on('message', message => {
 						
 					}
 				}
-				else if(splitMessage[1] === "kd"){
-					
+				else if(splitMessage[1] === "elo"){
+					var messageName = String(message.member.user.username);
+					for(i = 0; i < linked_users.length; i++){
+						if(String(linked_users[i].discordName) == messageName){
+							var id = linked_users[i].destinyId;
+							console.log(id);
+							guardianApi.getElo(id, function(elo){
+								message.channel.sendMessage(messageName+"'s Elo is "+elo);
+							});
+							
+							
+						}
+					}
 				}
 				else if(splitMessage[1] === "gr"){
 					var messageName = String(message.member.user.username);
