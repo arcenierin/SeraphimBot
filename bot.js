@@ -229,6 +229,26 @@ client.on('message', message => {
 						
 					}
 				}
+				else if(splitMessage[1] === "kd"){
+					
+				}
+				else if(splitMessage[1] === "gr"){
+					var messageName = String(message.member.user.username);
+					for(i = 0; i < linked_users.length; i++){
+						if(String(linked_users[i].discordName) == messageName){
+							var id = linked_users[i].destinyId;
+							console.log(id);
+							destiny.Account({
+								membershipType: 2,
+								membershipId: id
+							}).then(res => {
+								console.log(res);
+								var grScore = res.grimoireScore;
+								message.channel.sendMessage(messageName+"'s Grimoire Score is: "+grScore);
+							});
+						}
+					}
+				}
 			}
 	    	else if(splitMessage[0] === "!clearuser"){
 			if(splitMessage.length == 3){
