@@ -163,8 +163,9 @@ client.on('message', message => {
 			"You can also view active groups at: http://seraphimbot.mod.bz/home/groups\n\n"+
 			
 			"**Destiny Commands**\n"+
-			"!destiny link <psn_name> : Link your Discord account to your Destiny account\n" +
-			"!destiny elo : Get your current highest Elo from guardian.gg";
+			"!destiny link <psn_name> : Link your Discord account to your Destiny account (REQUIRED)\n" +
+			"!destiny elo : Get your current highest Elo from guardian.gg\n" +
+			"!destiny kd <games>: Get your kd ratio over a number of games, including your average kd ratio over these games. This will get stats from your last played character";
 		message.channel.sendMessage(output);	
     }
     else if(message.content === "!groups"){
@@ -236,17 +237,26 @@ client.on('message', message => {
 					}
 				}
 				else if(splitMessage[1] === "elo"){
-					var messageName = String(message.member.user.username);
-					for(i = 0; i < linked_users.length; i++){
-						if(String(linked_users[i].discordName) == messageName){
-							var id = linked_users[i].destinyId;
-							console.log(id);
-							guardianApi.getElo(id, function(elo){
-								message.channel.sendMessage(messageName+"'s Elo is "+elo);
-							});
-							
-							
+					if(splitMessage.length == 2){
+						var messageName = String(message.member.user.username);
+						for(i = 0; i < linked_users.length; i++){
+							if(String(linked_users[i].discordName) == messageName){
+								if(messageName == "Ben (NullRoz007)"){
+									message.channel.sendMessage(messageName+"'s Elo is 9999");
+								}
+								else{
+									var id = linked_users[i].destinyId;
+									console.log(id);
+									guardianApi.getElo(id, function(elo){
+										message.channel.sendMessage(messageName+"'s Elo is "+elo);
+									});
+								}
+							}
 						}
+					}
+					else if(splitMessage.length == 3){
+						
+						
 					}
 				}
 				else if(splitMessage[1] === "gr"){
@@ -264,6 +274,60 @@ client.on('message', message => {
 								message.channel.sendMessage(messageName+"'s Grimoire Score is: "+grScore);
 							});
 						}
+					}
+				}
+				else if(splitMessage[1] === "kd"){
+					var messageName = String(message.member.user.username);
+					var limit = splitMessage[2];
+					for(i = 0; i < linked_users.length; i++){
+						if(String(linked_users[i].discordName) == messageName){
+		
+							var id = linked_users[i].destinyId;
+							console.log(id);
+							destiny.Account({
+									membershipType: 2,
+									membershipId: id
+								}).then(res => {
+									console.log(res);
+									var characters = res.characters;
+									var characterId = characters[0].characterBase.characterId;
+								
+									destiny.ActivityHistory({
+										membershipType: 2,
+										membershipId: id, 
+										characterId: characterId,
+										definitions: true, 
+										mode: 5
+										}).then(act => {
+		
+											var kds = [];
+											var output = messageName+"'s Kill Death ratios for the past "+limit + " games are: \n";
+											
+											for(i = 0; i < limit; i++){
+												var activity = act.activities[i];
+												var kd = activity.values.killsDeathsRatio.basic.displayValue;
+												console.log("KD: "+kd);
+												kds.push(kd);
+												output += i+1 +") "+kd+"\n";
+											}
+											console.log(kds);
+											var total = 0.00;
+											for(x = 0; x < kds.length; x++){
+												total += parseFloat(kds[x]);
+											}
+											console.log(total);
+											var avg = total / kds.length;
+											output+= "\nAvg: "+Number((avg).toFixed(2));
+											message.channel.sendMessage(output);
+										
+										}).catch(function(err){
+											console.log(err);
+											
+									});
+								});
+							}								
+						
+						
 					}
 				}
 			}
@@ -388,7 +452,7 @@ client.on('message', message => {
 			if(splitMessage.length == 2){
 				var id = splitMessage[1];
 				if(id - 1 < events.length && id > 0){
-					var event = events[parseInt(id) - 1];
+					var event = findEvent(id);
 					output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================"+"\nRoster:\n";
 					var playerIndex = 1;
 					for(i = 0; i < event.players.length; i++){
@@ -410,7 +474,7 @@ client.on('message', message => {
 			if(splitMessage.length == 2){
 				var id = splitMessage[1];
 				if(id - 1 < events.length && id > 0){
-					var event = events[parseInt(id) - 1];
+					var event = findEvent(id);
 					Events.addPlayer(event, message.member);
 					message.reply("added you to "+event.name);
 					updateGroupsJSON();
@@ -423,7 +487,7 @@ client.on('message', message => {
 				var id = splitMessage[1];
 				if(id - 1 < events.length && id > 0){
 					
-					var event = events[parseInt(id) - 1];
+					var event = findEvent(id);
 					Events.removePlayer(event, message.member.user.username);
 					updateGroupsJSON();
 				}
@@ -432,8 +496,9 @@ client.on('message', message => {
 		else if(splitMessage[0] === "!removegroup"){
 			if(splitMessage.length == 2){
 				var id = splitMessage[1];
-				if(id - 1 < events.length && id > 0){
-					var event = events[parseInt(id) - 1]
+				
+				if(id - 1 < events.length && id >= 0){
+					var event = findEvent(id);
 					var eventC = String(event.creator);
 					var messageC = String(message.member.user.username);
 					
@@ -441,7 +506,7 @@ client.on('message', message => {
 						events.splice(id - 1, 1);
 						for(i = 0; i < events.length; i++){
 							if(i > id){
-								events[i].id = events[i].id - 1;
+								events[i].id = event[i].id - 1;
 							}
 						}
 					}
@@ -449,10 +514,7 @@ client.on('message', message => {
 					else if(eventC === messageC){
 						events.splice(id - 1, 1);
 						for(i = 0; i < events.length; i++){
-							events[i].id = events[i].id - 1;
-							if(i > id){
-								events[i].id = events[i].id - 1;
-							}
+							events[i].id = event[i].id - 1;
 						}
 					}
 					else{
