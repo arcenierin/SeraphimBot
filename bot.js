@@ -16,6 +16,7 @@ app.use('/home', express.static('/home'));
 
 var messages = [];
 var events = [];
+var event_offset = 0;
 var linked_users = [];
 var destiny = Destiny('af70e027a7694afc8ed613589bf04a60');
 var util = require('util');
@@ -34,7 +35,7 @@ app.get('/groups/:groupId', function(req, res){
 	var id = req.params['groupId'];
 	for(i = 0; i < events.length; i++){
 		if(events[i].id == id){
-			return res.send(JSON.stringify(events[i]));
+			return res.send(JSON.stringify(findEvent(id)));
 		}
 	}
 	return res.end("No groups were found :(");
@@ -43,7 +44,7 @@ app.get('/groups/:groupId/detail', function(req, res){
 	var id = req.params['groupId'];
 	for(i = 0; i < events.length; i++){
 		if(events[i].id == id){
-			return res.send(events[i].name + "-" +events[i].creator);
+			return res.send(events[i].name + "-" +findEvent(id).creator);
 		}
 	}
 	return res.end("No groups were found :(");
@@ -173,7 +174,7 @@ client.on('message', message => {
 			console.log("Getting groups...");
 			var output = "```";
 			for(i = 0; i < events.length; i++){
-				var event = events[i];
+				var event = findEvent(i);
 				output += "ID: "+event.id+", "+event.name+ ", Start Time: "+event.startTime + "-"+event.timeZone +"\n";
 			}
 			output += "```\nTo get more specific details about a group, type !group <id>.";
@@ -433,7 +434,7 @@ client.on('message', message => {
 					}
 				}
 					
-				var event = new Events.Event(events.length+1, fullName, splitMessage[2 + n], splitMessage[3 + n], message.member.user.username); 
+				var event = new Events.Event(events.length + event_offset + 1, fullName, splitMessage[2 + n], splitMessage[3 + n], message.member.user.username); 
 				
 				message.channel.sendMessage("```\n================================\n"+fullName+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================```");
 				Events.addPlayer(event, message.member);
@@ -504,18 +505,12 @@ client.on('message', message => {
 					
 					if(hasModPerms(message)){
 						events.splice(id - 1, 1);
-						for(i = 0; i < events.length; i++){
-							if(i > id){
-								events[i].id = event[i].id - 1;
-							}
-						}
+						event_offset += 1;
 					}
 					
 					else if(eventC === messageC){
 						events.splice(id - 1, 1);
-						for(i = 0; i < events.length; i++){
-							events[i].id = event[i].id - 1;
-						}
+						event_offset += 1;
 					}
 					else{
 						console.log(message.member.user.username + ", "+event.creator);
