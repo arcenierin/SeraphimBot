@@ -42,7 +42,7 @@ nav {
 font-size: 16px;
 color:#fff;
 	background: #888;
-	width: 250px; 
+	width: 100px; 
 	position: fixed;
 	left: 0;
 	top: 0;
@@ -66,7 +66,7 @@ color: #ccc;
 
 section#content {
 	padding: 20px;
-	margin:0 0 0 250px;
+	margin:0 0 0 100px;
 	background-color: #fff;
 	max-width: 800px;
     min-width:550px;
@@ -78,8 +78,9 @@ line-height:1.5em;
 
 /* ----------header for logo-------------- */
 header {
-	padding:0 20px 0 0;
-	/*background:url(http://intensivstation.ch/assets/Uploads/html5-bw.png) no-repeat top right;*/
+	position: left;
+	padding:0 20px 80px 0;
+	background:url(https://cdn.discordapp.com/icons/221070742975021056/5d480d7a67452f75e4498d2002bc353e.jpg) no-repeat top right;*/
 }
 	
 header img{ padding: 0 0 10px;}

@@ -1,6 +1,6 @@
 {
   "name": "SeraphimBot",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "!",
   "main": "bot.js",
   "dependencies": {
@@ -8,8 +8,9 @@
     "colors": "1.1.2",
     "destiny-client": "^0.6.0",
     "discord.js": "10.0.1",
-    "express": "4.14.0"
-	
+    "express": "4.14.0",
+    "querystring": "^0.2.0",
+    "sha1": "^1.1.1"
   },
   "engines": {
     "node": "6.9.1"

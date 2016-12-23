@@ -21,7 +21,7 @@ function getGroups(){
 	var json = JSON.parse(res);
 	var eventString = "Groups: \n";
 	for(i = 0; i < json.length; i++){
-		eventString += json[i].name + " (" + json[i].startTime + "-" + json[i].timeZone+")<br>";
+		eventString += json[i].id+". "+json[i].name + " (" + json[i].startTime + "-" + json[i].timeZone+")<br>";
 	}
 	document.getElementById("groups").innerHTML = eventString;
 	console.log(json[0].name);

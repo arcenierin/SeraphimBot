@@ -1,4 +1,5 @@
 var http = require('http');
+var querystring = require('querystring');
 module.exports = {
 	getElo: function(id, callback){
 		
@@ -24,5 +25,17 @@ module.exports = {
 		});
 		
 		
+	},
+	getEloChart: function(id, callback){
+		return http.get("http://api.guardian.gg/chart/elo/"+id, function(response){
+			var body = '';
+			response.on('data', function(d){
+				body += d;
+			});
+			response.on('end', function(){
+				var parsed = JSON.parse(body);
+				return callback(parsed);
+			});
+		});
 	}
 }

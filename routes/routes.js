@@ -22,6 +22,24 @@ var appRouter = function(app){
 	app.get("/home/fixed-menu.css", function(req, res){
 		res.sendFile(path.join(__dirname+'/../home/fixed-menu.css'));
 	});
+	app.get("/chart/generate/:hash/", function(req, res){
+		var hash = req.params['hash'];
+		var jsonData; 
+		fs.readFile(hash+".json", function(err, data){
+			if(err){
+				console.log(err);
+			}
+			else{
+				console.log(data);
+				jsonData = data;
+			}
+			res.writeHeader(200, {"ContentType": "text/html"});
+			res.write("<!DOCTYPE html> <html> <meta name=\"description\" content=\"Graph: "+hash+"\"> <head> </head> <body><h1>Graph: "+hash+" </h1>"+jsonData+" </body> </html>");
+			res.end();
+		});
+		
+		//fs.unlink(path.join(__dirname+"/../"+hash+".json"));	
+	});
 
 }
 

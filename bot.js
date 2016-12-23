@@ -8,7 +8,8 @@ var bodyParser = require('body-parser');
 var path = require('path');
 var Destiny = require('destiny-client');
 var guardianApi = require('./guardiangg/guardian')
-
+var querystring = require('querystring');
+var sha1 = require('sha1');
 var app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -33,21 +34,20 @@ app.get('/links/', function(req, res){
 });
 app.get('/groups/:groupId', function(req, res){
 	var id = req.params['groupId'];
-	for(i = 0; i < events.length; i++){
-		if(events[i].id == id){
-			return res.send(JSON.stringify(findEvent(id)));
-		}
-	}
-	return res.end("No groups were found :(");
+
+	var reqevent = events.find(x => x.id == id);
+	return res.end(JSON.stringify(reqevent));
+	
+	
 });
 app.get('/groups/:groupId/detail', function(req, res){
-	var id = req.params['groupId'];
-	for(i = 0; i < events.length; i++){
-		if(events[i].id == id){
-			return res.send(events[i].name + "-" +findEvent(id).creator);
-		}
+	var reqid = req.params['groupId'];
+	var reqevent = events.find(x => x.id == reqid);
+	var output = reqevent.name + " - " +reqevent.creator + "\nPlayers:\n";
+	for(i = 0; i < reqevent.players.length; i++){
+		output += "\n"+reqevent.players[i].user.username;
 	}
-	return res.end("No groups were found :(");
+	return res.end(output);
 });
 client.on('ready', () => {
 	console.log('Client Connected!');	
@@ -55,7 +55,19 @@ client.on('ready', () => {
 	updateLinksList();
 });
 
-
+var gg_modes = {
+	"skirmish": "9", 
+	"control": "10", 
+	"clash": "12", 
+	"rumble": "13", 
+	"ironbanner": "19",
+	"elimination": "23",
+	"rift": "24",
+	"zonecontrol": "28", 
+	"supremacy": "31", 
+	"all": "34",
+	"rumblesupremacy": "531"
+}
 
 client.on('message', message => {
     messages.push(message);
@@ -107,6 +119,21 @@ client.on('message', message => {
 			// No mod perms
 		}
 	} */
+	else if(message.content === "!fixjson"){
+		if(isBotCommander(message)){
+			try{
+				console.log("Rebuilding groups...");
+				message.channel.sendMessage("Rebuilding groups...");
+				updateGroupsJSON();
+			}
+			catch(err){
+				console.log(err);
+			}
+		}
+		else{
+			message.channel.sendMessage();
+		}
+	}
     else if(message.content === "!log"){
 	var output = "";
 	for(index = 0; index < messages.length; ++index){
@@ -165,8 +192,9 @@ client.on('message', message => {
 			
 			"**Destiny Commands**\n"+
 			"!destiny link <psn_name> : Link your Discord account to your Destiny account (REQUIRED)\n" +
+			"!destiny gr : Get your current grimoire score \n"+
 			"!destiny elo : Get your current highest Elo from guardian.gg\n" +
-			"!destiny kd <games>: Get your kd ratio over a number of games, including your average kd ratio over these games. This will get stats from your last played character";
+			"!destiny kd <games>: Get your kd ratio over a number of games, including your average kd ratio over these games. **This will get data from your last played character**";
 		message.channel.sendMessage(output);	
     }
     else if(message.content === "!groups"){
@@ -174,10 +202,16 @@ client.on('message', message => {
 			console.log("Getting groups...");
 			var output = "```";
 			for(i = 0; i < events.length; i++){
-				var event = findEvent(i);
-				output += "ID: "+event.id+", "+event.name+ ", Start Time: "+event.startTime + "-"+event.timeZone +"\n";
+				try{
+					
+					output += "ID: "+events[i].id+", "+events[i].name+ ", Start Time: "+events[i].startTime + "-"+events[i].timeZone +"\n";
+				}
+				catch(err){
+					message.channel.sendMessage(err);
+				}
+				
 			}
-			output += "```\nTo get more specific details about a group, type !group <id>.";
+			output += "```\nTo get more specific details about a group, type !group <id>.\nYou can also check available groups at: http://seraphimbot.mod.bz/home/groups";
 			message.channel.sendMessage(output);
 		}
 		else{
@@ -237,6 +271,7 @@ client.on('message', message => {
 						
 					}
 				}
+				
 				else if(splitMessage[1] === "elo"){
 					if(splitMessage.length == 2){
 						var messageName = String(message.member.user.username);
@@ -260,6 +295,34 @@ client.on('message', message => {
 						
 					}
 				}
+				else if(splitMessage[1] === "elochart"){
+							var messageName = String(message.member.user.username);
+							var gameMode = splitMessage[2];
+							console.log(gameMode);
+							var gameModeCode = gg_modes[gameMode];
+							console.log(gameModeCode);
+							for(i = 0; i < linked_users.length; i++){
+								if(String(linked_users[i].discordName) == messageName){
+									var id = linked_users[i].destinyId;
+									console.log(id);
+									guardianApi.getEloChart(String(id), function(eloChart){
+										var hashedData = sha1(eloChart);
+										var gamemodeData = [];
+										for(i = 0; i < eloChart.length; i++){
+											console.log(eloChart[i].mode)
+											if(eloChart[i].mode == gameModeCode){
+												gamemodeData.push({"x": eloChart[i].x, "y": eloChart[i].y})
+											}
+										}
+										fs.writeFile(hashedData+".json", JSON.stringify(gamemodeData))
+										for(i = 0; i < gamemodeData.length; i++){
+											console.log(gamemodeData[i]);
+										}
+										message.channel.sendMessage("You can view your elo chart at: \nhttp://seraphimbot.mod.bz/chart/generate/"+hashedData+"/34").catch(console.error);
+									});
+								}
+							}
+						}
 				else if(splitMessage[1] === "gr"){
 					var messageName = String(message.member.user.username);
 					for(i = 0; i < linked_users.length; i++){
@@ -434,13 +497,13 @@ client.on('message', message => {
 					}
 				}
 					
-				var event = new Events.Event(events.length + event_offset + 1, fullName, splitMessage[2 + n], splitMessage[3 + n], message.member.user.username); 
+				var newEvent = new Events.Event(events.length + 1, fullName, splitMessage[2 + n], splitMessage[3 + n], message.member.user.username); 
 				
-				message.channel.sendMessage("```\n================================\n"+fullName+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================```");
-				Events.addPlayer(event, message.member);
+				message.channel.sendMessage("```\n================================\n"+fullName+"\n================================\nStart Time: "+newEvent.startTime + "-"+newEvent.timeZone+"\n================================\nGroup ID: "+newEvent.id+"\n================================```");
+				Events.addPlayer(newEvent, message.member);
 				//message.reply("Creating your event: ID="+event.id+", Name="+event.name+", Start time="+event.startTime+"-"+event.timeZone);
-				console.log(event);
-				events.push(event);
+				console.log(newEvent);
+				events.push(newEvent);
 			}	
 			catch(err)
 			{
@@ -451,31 +514,14 @@ client.on('message', message => {
 		}
 	    else if(splitMessage[0] == "!group"){
 			if(splitMessage.length == 2){
-				var id = splitMessage[1];
-				if(id - 1 < events.length && id > 0){
-					var event = findEvent(id);
-					output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================"+"\nRoster:\n";
-					var playerIndex = 1;
-					for(i = 0; i < event.players.length; i++){
-						if(playerIndex==7)
-						{
-							output += "Substitutes:\n";
-						}
-						output += playerIndex+". "+event.players[i].user.username+"\n";
-						++playerIndex;
-					}
-					output+="```";
-					message.channel.sendMessage(output);
-				}
+				message.channel.sendMessage("This command is currently under reconstruction. To get information on this group, please visit: http://seraphimbot.mod.bz/groups/"+splitMessage[1]+"/detail");	
 			}
-			
-			
 		}
 	    else if(splitMessage[0] == "!joingroup"){
 			if(splitMessage.length == 2){
 				var id = splitMessage[1];
 				if(id - 1 < events.length && id > 0){
-					var event = findEvent(id);
+					var event = events.find(x => x.id == id);
 					Events.addPlayer(event, message.member);
 					message.reply("added you to "+event.name);
 					updateGroupsJSON();
@@ -488,7 +534,7 @@ client.on('message', message => {
 				var id = splitMessage[1];
 				if(id - 1 < events.length && id > 0){
 					
-					var event = findEvent(id);
+					var event = events.find(x => x.id == id);
 					Events.removePlayer(event, message.member.user.username);
 					updateGroupsJSON();
 				}
@@ -499,24 +545,36 @@ client.on('message', message => {
 				var id = splitMessage[1];
 				
 				if(id - 1 < events.length && id >= 0){
-					var event = findEvent(id);
-					var eventC = String(event.creator);
-					var messageC = String(message.member.user.username);
-					
-					if(hasModPerms(message)){
-						events.splice(id - 1, 1);
-						event_offset += 1;
+					try{
+						var event = events.find(x => x.id == id);
+						var eventC = String(event.creator);
+						var messageC = String(message.member.user.username);
+						
+						if(hasModPerms(message)){
+							index = events.findIndex(x => x.id==id);
+							events.splice(index, 1);
+							for(i = 0; i < events.length; i++){
+								events[i].id = i + 1;
+							}
+						}
+						
+						else if(eventC === messageC){
+							var index = events.findIndex(x => x.id==id);
+							events.splice(index, 1);
+							for(i = 0; i < events.length; i++){
+								events[i].id = i + 1;
+							}
+						}
+						else{
+							console.log(message.member.user.username + ", "+event.creator);
+							message.channel.sendMessage("You can't delete that group because you are not the creator!");
+						}
+						updateGroupsJSON();
+					}
+					catch(err){
+						console.log(err);
 					}
 					
-					else if(eventC === messageC){
-						events.splice(id - 1, 1);
-						event_offset += 1;
-					}
-					else{
-						console.log(message.member.user.username + ", "+event.creator);
-						message.channel.sendMessage("You can't delete that group because you are not the creator!");
-					}
-					updateGroupsJSON();
 				}
 			}
 			
@@ -526,7 +584,7 @@ client.on('message', message => {
 			if(splitMessage.length == 2){
 				var id = splitMessage[1];
 				if(id - 1 < events.length && id > 0){
-					var event = events[parseInt(id) - 1];
+					var event = events.find(x => x.id == id);
 					var output = "Rolecall for "+event.name+" at "+event.startTime+" "+event.timeZone+"\n";
 					for(i = 0; i < event.players.length; i++){
 						var userToPing = event.players[i].user;
@@ -544,7 +602,7 @@ client.on('message', message => {
 				
 				if (id - 1 < events.length && id > 0){
 					
-					var event = events[parseInt(id) - 1];
+					var event = events.find(x => x.id == id);
 					var userToFind = splitMessage[2];
 						
 					// Build the user name, for when there are spaces in the name
@@ -580,7 +638,7 @@ client.on('message', message => {
 				
 				if (id - 1 < events.length && id > 0){
 					
-					var event = events[parseInt(id) - 1];
+					var event = events.find(x => x.id == id);
 					var userToFind = splitMessage[2];
 						
 					// Build the user name, for when there are spaces in the name
@@ -763,7 +821,7 @@ function findEvent(eID){
 	var result = null;
 	
 	for(var i = 0; i < events.length; i++){
-		if (events[i].id = eID){
+		if (events[i].id == eID){
 			result = events[i];
 		}
 	}
@@ -865,6 +923,7 @@ function updateGroupsJSON(){
 		}
 		catch(err){
 			console.log(err);
+			fs.writeFile('home/events.json', "");
 		}
 	}
 	
@@ -926,8 +985,14 @@ function updateGroupsList(){
 	fs.exists("home/events.json", function(exists){
 		if(exists){
 			fs.readFile('home/events.json', (err, data) => {
-				var jObject = JSON.parse(data); 
-				events = jObject;
+				try{
+					var jObject = JSON.parse(data); 
+					events = jObject;
+				}
+				catch(err){
+					console.log(err)
+				}
+				
 			});
 			
 		}
@@ -938,12 +1003,18 @@ function updateGroupsList(){
 	});
 	
 }
+function isBotCommander(input){
+	console.log(input.member.roles);
+	return input.member.roles.exists('name', 'Bot Commander')
+			
+}
 function hasModPerms(input) {
 	try{
  
 		var modPerms = [ "MANAGE_MESSAGES", "MANAGE_ROLES_OR_PERMISSIONS" ];
-	
-		return input.member.permissions.hasPermissions(modPerms, true);
+		var mod = input.member.permissions.hasPermissions(modPerms, true);
+		return mod;
+		
 	}
 	catch(err){
 		console.log(err.message);
