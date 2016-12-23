@@ -16,3 +16,9 @@ A discord bot written in javascript using node.js and discord.js
 11. Get destiny player elo from guardian.gg, (using guardian.gg api) [x]
 12. Generate charts from elo or kd data []
 13. Event API [x]
+
+#Event API
+| Endpoint | Discription |
+|----------|-------------|
+|/groups   |Returns a JSON file containing all currently avalible groups |
+
