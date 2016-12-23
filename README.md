@@ -24,11 +24,13 @@ A discord bot written in javascript using node.js and discord.js
 !addrole <role> <username>  | adds the role to user, if both exist"
 !removerole <role> <username>  | removes the role from the user, if both exist
 
+
 #General Commands
 |Command|Description|
 |-------|-----------|
 !ping  	|  A tiny bit about the bot
-			
+
+
 #LFG Commands
 |Command|Description|
 |-------|-----------|
@@ -40,7 +42,8 @@ A discord bot written in javascript using node.js and discord.js
 !removegroup <ID>  | Removes the group with the given ID. Removed groups erased and can no longer be joined. Only the creator can use this
 !rolecall <ID>  |  @ mentions everyone in the given group.
 You can also view active groups at: http://seraphimbot.mod.bz/home/groups
-			
+
+
 #Destiny Commands
 |Command|Description|
 |-------|-----------|
@@ -52,10 +55,12 @@ You can also view active groups at: http://seraphimbot.mod.bz/home/groups
 
 #Event API
 Endpoints are defined in routes.js and in bot.js, It's a bit of a mess. 
+
 | Endpoint | Description|
 |----------|-------------|
 |/groups   |Returns a JSON file containing all currently avalible groups |
 |/groups/{groupID}/ | returns JSON Data on specific group |
+
 
 #Bot API
 | Endpoint | Description|
