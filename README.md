@@ -18,19 +18,19 @@ A discord bot written in javascript using node.js and discord.js
 13. Event API [x]
 
 #Mod Commands
-|Command|Discription|
+|Command|Description|
 |-------|-----------|
 !clear  | Clears recent messages in the channel 
 !addrole <role> <username>  | adds the role to user, if both exist"
 !removerole <role> <username>  | removes the role from the user, if both exist
 
 #General Commands
-|Command|Discription|
+|Command|Description|
 |-------|-----------|
 !ping  	|  A tiny bit about the bot
 			
 #LFG Commands
-|Command|Discription|
+|Command|Description|
 |-------|-----------|
 !post <activity> <time> <timezone>  |  Creates a new group. <activity> can be an abbreviation like wotm or vog. If you do not enter a recognized abbreviation, it will take whatever you entered. You can also add -n or -h to the activity to show normal or hard mode. To use a name with spaces in it put \" around it.
 !groups  |  Displays all active groups 
@@ -42,21 +42,23 @@ A discord bot written in javascript using node.js and discord.js
 You can also view active groups at: http://seraphimbot.mod.bz/home/groups
 			
 #Destiny Commands
-|Command|Discription|
+|Command|Description|
 |-------|-----------|
 !destiny link <psn_name> | Link your Discord account to your Destiny account (REQUIRED)
 !destiny gr | Get your current grimoire score
 !destiny elo | Get your current highest Elo from guardian.gg
 !destiny kd <games> | Get your kd ratio over a number of games, including your average kd ratio over these games. This will get data from your last played character
 
+
 #Event API
-| Endpoint | Discription |
+Endpoints are defined in routes.js and in bot.js, It's a bit of a mess. 
+| Endpoint | Description|
 |----------|-------------|
 |/groups   |Returns a JSON file containing all currently avalible groups |
 |/groups/{groupID}/ | returns JSON Data on specific group |
 
 #Bot API
-| Endpoint | Discription |
+| Endpoint | Description|
 |----------|-------------|
 |/         | Return bot status, will be replaced with /status with / redirecting to /home |
 |/chart/generate/:hash/ | Returns chart data on a specific file. Hash is SHA1 hash corresponding to a specific file, generated using !destiny elochart |
