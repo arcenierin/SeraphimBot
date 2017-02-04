@@ -12,7 +12,7 @@ module.exports = {
         console.log('Event: '+event.id+", adding player: "+player);
     },
     removePlayer: function(event, playerName){
-        var index = event.players.findIndex(x => x.user.username == playerName);
+        var index = event.players.findIndex(x => x == playerName);
         if(index != -1){
             event.players.splice(index, 1);
             console.log(index);

@@ -22,9 +22,12 @@ var appRouter = function(app){
 	app.get("/home/fixed-menu.css", function(req, res){
 		res.sendFile(path.join(__dirname+'/../home/fixed-menu.css'));
 	});
+	app.get("/linkhelp", function(req, res){
+	});
 	app.get("/chart/generate/:hash/", function(req, res){
 		var hash = req.params['hash'];
-		var jsonData; 
+		var jsonData = "";
+		var editedHTML = "TEST";
 		fs.readFile(hash+".json", function(err, data){
 			if(err){
 				console.log(err);
@@ -34,10 +37,19 @@ var appRouter = function(app){
 				jsonData = data;
 			}
 			res.writeHeader(200, {"ContentType": "text/html"});
-			res.write("<!DOCTYPE html> <html> <meta name=\"description\" content=\"Graph: "+hash+"\"> <head> </head> <body><h1>Graph: "+hash+" </h1>"+jsonData+" </body> </html>");
-			res.end();
+			fs.readFile("chartnp.html", function(err, data){
+				if(err){
+					console.log(err);
+				}
+				else{
+					var stringhtml = String(data);
+					console.log(">: "+editedHTML);
+					editedHTML = stringhtml.replace("X_DATA_PLACEHOLDER_X", "google.visualization.arrayToDataTable("+jsonData+");");
+				}
+			});
+			res.write(editedHTML)
 		});
-		
+		res.end();
 		//fs.unlink(path.join(__dirname+"/../"+hash+".json"));	
 	});
 

@@ -1,7 +1,7 @@
 {
   "name": "SeraphimBot",
-  "version": "0.1.0",
-  "description": "!",
+  "version": "1.0.1",
+  "description": "Discord bot for the Seraphim Elite Destiny clan.",
   "main": "bot.js",
   "dependencies": {
     "body-parser": "1.15.2",
@@ -9,8 +9,10 @@
     "destiny-client": "^0.6.0",
     "discord.js": "10.0.1",
     "express": "4.14.0",
+    "plotly": "^1.0.6",
     "querystring": "^0.2.0",
-    "sha1": "^1.1.1"
+    "sha1": "^1.1.1",
+	"plotly": "1.0.6"
   },
   "engines": {
     "node": "6.9.1"
