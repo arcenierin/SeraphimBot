@@ -21,7 +21,7 @@ module.exports = {
 
 
 
-app.get('/groups/', function(req, res){
+/*app.get('/groups/', function(req, res){
 	return res.send(JSON.stringify(events));
 });
 app.get('/links/', function(req, res){
@@ -34,8 +34,8 @@ app.get('/groups/:groupId', function(req, res){
 	return res.end(JSON.stringify(reqevent));
 	
 	
-});
-app.get('/groups/:groupId/detail', function(req, res){
+});*/
+/*app.get('/groups/:groupId/detail', function(req, res){
 	var reqid = req.params['groupId'];
 	var reqevent = events.find(x => x.id == reqid);
 	var output = reqevent.name + " - " +reqevent.creator + "\nPlayers:\n";
@@ -60,4 +60,4 @@ app.get('/destiny/link/:DiscordName/:DestinyID', function(req, res){
 		
 	}
 	updateLinksJSON();	
-});
+});*/

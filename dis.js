@@ -6,7 +6,7 @@ var colors = require('colors');
 var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
-var Destiny = require('destiny-client');
+var Destiny = require('./destiny-client');
 var guardianApi = require('./guardiangg/guardian')
 var querystring = require('querystring');
 var sha1 = require('sha1');
@@ -38,19 +38,17 @@ var gg_modes = {
 	"all": "34",
 	"rumblesupremacy": "531"
 }
-var VERSION = "1.0.0";
-var changelog = "```1.0.0: \n"+
-				"	 1) Added !mygroups command.\n" +
-				"	 2) Added !changelog command.\n" +
-				"     3) Fixed double destiny <-> discord account linking.\n" + 
-				"     4) Added !unlink command\n" +
-				"     5) Seperated the Server and the Discord Client into their own js files."+
+var VERSION = "1.1.1";
+var changelog = "```1.1.1: \n"+
+				"	 1) Added !destiny raids <secondstat>.\n" +
+				"	 2) !destiny kd now gets data from a specified character. Defaults to 0"+
+				"	 3)	Moved the destiny-client module from /node-modules to / to stop xervo from overwritting changes to the endpoints.js file."+
 				"```";
 
 client.on('message', message => {
     messages.push(message);
     if(message.content === "!ping"){
-	message.reply('You called? (This bot was made by Ben (NullRoz007) and Reusableduckk, @ one of them if there are any problems.');
+	message.reply('You called? (This bot was made by Ben (NullRoz007) and Reusableduckk, @ one of them if there are any problems.\nCurrent Version: '+VERSION);
     }
 	else if(message.content == "!changelog"){
 		message.channel.sendMessage("Current Version: "+VERSION+"\n"+"Change Log: \n"+changelog);
@@ -171,15 +169,15 @@ client.on('message', message => {
 			"!joingroup <ID>  :  Join the group with the given ID\n" +
 			"!leavegroup <ID>  :  Leave the group with the given ID\n" +
 			"!removegroup <ID>  :  Removes the group with the given ID. Removed groups erased and can no longer be joined. Only the creator can use this\n" +
-			"!rolecall <ID>  :  @ mentions everyone in the given group. Please do not abuse this.\n" +
-			"You can also view active groups at: http://seraphimbot.mod.bz/home/groups\n\n"+
+			"!rolecall <ID>  :  @ mentions everyone in the given group. Please do not abuse this.\n\n" +
 			
 			"**Destiny Commands**\n"+
 			"!destiny link <psn_name> : Link your Discord account to your Destiny account (REQUIRED)\n" +
 			"!destiny unlink : Unlink your Discord and Destiny accounts\n"+
 			"!destiny gr : Get your current grimoire score \n"+
 			"!destiny elo : Get your current highest Elo from guardian.gg\n" +
-			"!destiny kd <games>: Get your kd ratio over a number of games, including your average kd ratio over these games. **This will get data from your last played character**\n" +
+			"!destiny kd <games> <characterindex 0-2>: Get your kd ratio over a number of games, including your average kd ratio over these games.\n" +
+			"!destiny raids <optionalstat> : Get your raid clears on all characters, + an option stat\n"+
 			"!destiny elograph <gamemode> <graphtype> <specialoption> : graphtype can be anything found at the bottom of this webpage: https://plot.ly/javascript, however scatter works best. specialoptions can only be -f, for fill.";
 		message.channel.sendMessage(output);	
     }
@@ -405,9 +403,44 @@ client.on('message', message => {
 						}
 					}
 				}
+				else if(splitMessage[1] === "raids"){
+					var messageName = String(message.member.user.username);
+					var completions = '';
+					var otherstats = [];
+					for(i = 0; i < linked_users.length; i++){
+						if(String(linked_users[i].discordName) == messageName){
+							var id = linked_users[i].destinyId;
+							//console.log(id);
+							destiny.Stats({
+							membershipType: 2, 
+								membershipId: id, 
+								characterId: 0
+							}).then(stats => {
+								completions = stats.raid.allTime.activitiesCleared.basic.value;
+								
+								
+								var output = "\n"+messageName+"'s Raid Completions: " + completions+"\n";
+								if(splitMessage.length == 3){
+									output += "Other Stats:";
+									var lookup = splitMessage[2];
+									var result = stats.raid.allTime[lookup].basic.value;
+									output += lookup+": "+result;
+									
+								}
+								
+								message.channel.sendMessage(output);
+							});	
+						}
+					}
+					
+				}
 				else if(splitMessage[1] === "kd"){
 					var messageName = String(message.member.user.username);
 					var limit = splitMessage[2];
+					var character_index = -1;
+					if(splitMessage.length == 4){
+						character_index = parseInt(splitMessage[3]);
+					}
 					for(i = 0; i < linked_users.length; i++){
 						if(String(linked_users[i].discordName) == messageName){
 		
@@ -420,6 +453,10 @@ client.on('message', message => {
 									console.log(res);
 									var characters = res.characters;
 									var characterId = characters[0].characterBase.characterId;
+									if(character_index != -1){
+										characterId = characters[character_index].characterBase.characterId;
+									}
+									
 								
 									destiny.ActivityHistory({
 										membershipType: 2,
@@ -882,7 +919,7 @@ client.on("guildMemberAdd", (member) => {
 	for(i = 0; i < client.channels.array().length; ++i){
 		if(client.channels.array()[i].name == "general")
 		{
-			client.channels.array()[i].sendMessage("Welcome to Seraphim Elite "+member.user+", make sure you read the rules in # welcome-read-me, and feel free to introduce yourself to the rest of the clan! If you haven't already, you can set Seraphim Elite as your active clan at: https://www.bungie.net/en/Clan/Detail/1866434");
+			client.channels.array()[i].sendMessage("Welcome to Seraphim Elite "+member.user+", make sure you read the rules in # welcome-read-me, and feel free to introduce yourself to the rest of the clan! If you haven't already, you can set Seraphim Elite as your active clan at: https://www.bungie./en/Clan/Detail/1866434");
 			//console.log(client.channels.array()[i].guild.roles);
 			var initRole = client.channels.array()[i].guild.roles.find('name', 'Initiate');
 			//console.log(client.channels.array()[i].guild.roles);
@@ -898,7 +935,15 @@ module.exports = {
 			//client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
 	}
 }
-
+process.on('uncaughtException', function(err) {
+  for(i = 0; i < client.channels.array().length; ++i){
+		if(client.channels.array()[i].name == "general")
+		{
+			client.channels.array()[i].sendMessage("I've hit a snag, the error is: "+ err);
+		}
+		
+	}
+});
 
 // returns event
 // null if id is not found
@@ -1072,8 +1117,6 @@ function exitHandler(options, err) {
 process.on('exit', exitHandler.bind(null,{cleanup:true}));
 
 process.on('SIGINT', exitHandler.bind(null, {exit:true}));
-
-process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 
 function updateGroupsList(){
 	fs.exists("home/events.json", function(exists){
