@@ -170,42 +170,60 @@ client.on('message', message => {
 		message.channel.sendMessage("https://youtu.be/Tctfq4tplQ4?t=22s");	
 	}
     else if(message.content === "!help"){
-		var output = "";
 		
-		if (hasModPerms(message)){
-			output = "**Mod Commands**\n" +
+		var h_mod = "**Mod Commands**\n" +
 					 "!clear  :  Clears recent messages in the channel\n" +
+					 "!clearuser <amount> <username>  :  searches through <amount> message and deletes any authored by <username>\n" +
 					 "!addrole <role> <username>  : adds the role to user, if both exist\n" +
 					 "!removerole <role> <username>  : removes the role from the user, if both exist\n\n";
-		}
+
+		var h_gen = "**General Commands**\n" +
+					"!ping  :  A tiny bit about the bot\n" +
+					"!changelog : Display the Changelog\n" +
+					"!help : Display this message\n\n";
+			
 		
-		output = output +
-			"**General Commands**\n" +
-			"!ping  :  A tiny bit about the bot\n" +
-			"!changelog : Display the Changelog\n" +
-			"!help : Display this message\n\n" +
-			
-			"**LFG Commands**\n" +
-			"!post <activity> <time> <timezone>  :  Creates a new group. <activity> can be an abbreviation like wotm or vog. If you do not enter a recognized abbreviation, it will take whatever you entered. You can also add -n or -h to the activity to show normal or hard mode. To use a name with spaces in it put \" around it. \n" +
-			"!groups  :  Displays all active groups\n" +
-			"!mygroups : Display all active groups that you are a member of\n"+
-			"!group <ID>  :  Displays a specific group with the given ID\n" +
-			"!joingroup <ID>  :  Join the group with the given ID\n" +
-			"!leavegroup <ID>  :  Leave the group with the given ID\n" +
-			"!removegroup <ID>  :  Removes the group with the given ID. Removed groups erased and can no longer be joined. Only the creator can use this\n" +
-			"!rolecall <ID>  :  @ mentions everyone in the given group. Please do not abuse this.\n\n" +
-			
-			"**Destiny Commands**\n"+
-			"!destiny link <psn_name> : Link your Discord account to your Destiny account (REQUIRED)\n" +
-			"!destiny unlink : Unlink your Discord and Destiny accounts\n"+
-			"!destiny gr : Get your current grimoire score \n"+
-			"!destiny elo : Get your current highest Elo from guardian.gg\n" +
-			"!destiny kd <games> <characterindex 0-2>: Get your kd ratio over a number of games, including your average kd ratio over these games.\n" +
-			"!destiny raids <optionalstat> : Get your raid clears on all characters, + an option stat\n"+
-			"!destiny elograph <gamemode> <graphtype> <specialoption> : graphtype can be anything found at the bottom of this webpage: https://plot.ly/javascript, however scatter works best. specialoptions can only be -f, for fill.\n" + 
-			"!destiny current : Displays the current activity you are in.";
-			
-		message.channel.sendMessage(output);	
+		var h_lfg = "**LFG Commands**\n" +
+					"!post <activity> <time> <timezone>  :  Creates a new group. <activity> can be an abbreviation like wotm or vog. If you do not enter a recognized abbreviation, it will take whatever you entered. You can also add -n or -h to the activity to show normal or hard mode. To use a name with spaces in it put \" around it. \n" +
+					"!groups  :  Displays all active groups\n" +
+					"!mygroups : Display all active groups that you are a member of\n"+
+					"!group <ID>  :  Displays a specific group with the given ID\n" +
+					"!joingroup <ID>  :  Join the group with the given ID\n" +
+					"!leavegroup <ID>  :  Leave the group with the given ID\n" +
+					"!removegroup <ID>  :  Removes the group with the given ID. Removed groups erased and can no longer be joined. Only the creator can use this\n" +
+					"!rolecall <ID>  :  @ mentions everyone in the given group. Please do not abuse this.\n\n";
+		
+		var h_des = "**Destiny Commands**\n"+
+					"!destiny link <psn_name> : Link your Discord account to your Destiny account (REQUIRED)\n" +
+					"!destiny unlink : Unlink your Discord and Destiny accounts\n"+
+					"!destiny gr : Get your current grimoire score \n"+
+					"!destiny elo : Get your current highest Elo from guardian.gg\n" +
+					"!destiny kd <games> <characterindex 0-2>: Get your kd ratio over a number of games, including your average kd ratio over these games.\n" +
+					"!destiny raids <optionalstat> : Get your raid clears on all characters, + an option stat\n"+
+					"!destiny elograph <gamemode> <graphtype> <specialoption> : graphtype can be anything found at the bottom of this webpage: https://plot.ly/javascript, however scatter works best. specialoptions can only be -f, for fill.\n" + 
+					"!destiny current : Displays the current activity you are in.";
+		
+		message.reply("I'm sending you a DM now...");
+		
+		
+		if (hasModPerms(message)){
+			message.author.sendMessage(h_mod)
+				.then(console.log("Sucess"))
+				.catch(err => console.log(err));
+		}
+				
+		message.author.sendMessage(h_gen)
+				.then(console.log("Sucess"))
+				.catch(err => console.log(err));
+				
+		message.author.sendMessage(h_lfg)
+				.then(console.log("Sucess"))
+				.catch(err => console.log(err));
+				
+		message.author.sendMessage(h_des)
+				.then(console.log("Sucess"))
+				.catch(err => console.log(err));
+		
     }
 	else if(message.content === "!mygroups"){
 		var username = message.member.user.username;
@@ -408,6 +426,16 @@ client.on('message', message => {
 							hash: vendorHash
 						}).then(ven => {
 							console.log(ven);
+							//console.log("--------------------------------------------\n" +
+								//ven.vendor.summary.vendorDescription);
+							const embed = new Discord.RichEmbed()
+								.setTitle(ven.vendor.summary.vendorName)
+								.setColor(0xFDFF00)
+								.addField("Description: ", ven.vendor.summary.vendorDescription)
+								//.setImage("http://www.bungie.net/"+ven.vendor.summary.vendorPortrait)
+								.setThumbnail("http://www.bungie.net/"+ven.vendor.summary.vendorPortrait);
+							console.log(embed);
+							message.channel.sendEmbed(embed);
 						});
 						if(status.active){
 							
@@ -704,19 +732,28 @@ client.on('message', message => {
 				}
 			}
 	    	else if(splitMessage[0] === "!clearuser"){
-			if(splitMessage.length == 3){
-				var name = String(splitMessage[1]);
-				var amount = splitMessage[2];
+			if(splitMessage.length >= 3){
+				var amount = splitMessage[1];
+				
+				var name = splitMessage[2];
+				var i;
+				for(i = 3; i < splitMessage.length; i++){
+					name = name + " " + splitMessage[i];
+				}
+				console.log("Looking for messages from: " + name);
 				if(hasModPerms(message)){
 					var messagePromise = message.channel.fetchMessages({limit: amount});
 					messagePromise.then(function (pastMsgs) {
 						
 						for(i = 0; i < pastMsgs.array().length; i++){
 							var msg = pastMsgs.array()[i];
-							var msgUsr = String(msg.member.user.username);
-							console.log(msgUsr +", "+name);
+							var msgUsr = String(msg.member.displayName);
+							//console.log(msgUsr +", "+name);
 							if(msgUsr === name){
-								//msg.delete(); //(node:24522) UnhandledPromiseRejectionWarning: Unhandled promise rejection (rejection id: 2): Error: Bad Request
+								msg.delete()
+									.then(res => console.log("Deleted message from " + res.author + "\n"))
+									.catch(err => console.log(err)); 
+									//(node:24522) UnhandledPromiseRejectionWarning: Unhandled promise rejection (rejection id: 2): Error: Bad Request
 							}
 							
 						}
@@ -726,9 +763,12 @@ client.on('message', message => {
 					});
 					
 				}
+				else{
+					message.channel.sendMessage("You don't have mod permissions.");
+				}
 			}
 			else{
-				message.channel.sendMessage("Incorrent syntax, please use: !clearuser <name> <amount>");
+				message.channel.sendMessage("Incorrect syntax, please use: !clearuser <amount> <name>");
 			}
 				
 		}
