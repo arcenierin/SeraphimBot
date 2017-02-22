@@ -6,11 +6,12 @@
   "dependencies": {
     "body-parser": "1.15.2",
     "colors": "1.1.2",
-    "discord.js": "10.0.1",
+    "discord.js": "11.0.0",
     "es6-promise": "^2.1.1",
-    "isomorphic-fetch": "^2.1.0",
-    "lodash": "^3.9.1",
     "express": "4.14.0",
+    "isomorphic-fetch": "^2.1.0",
+    "jimp": "^0.2.27",
+    "lodash": "^3.9.1",
     "plotly": "1.0.6",
     "querystring": "^0.2.0",
     "sha1": "^1.1.1"

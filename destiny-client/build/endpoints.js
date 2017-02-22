@@ -6,10 +6,12 @@ Object.defineProperty(exports, '__esModule', {
 var _utils = require('./utils');
 
 /**
- * List of GET Endpoints available on the Destiny API
+ * List of GET Endpoints available on the Destiny API, modified for the SeraphimElite Discord Bot by NullRoz007.
  */
 var GET = [
         { name: 'Search', url: 'SearchDestinyPlayer/${ membershipType }/${ name }/', required: ['membershipType', 'name'] },
+		{ name: 'Advisors', url: '/Advisors/V2', required: []}, 
+		{ name: 'Manifest', url: 'Manifest/${ type }/${ hash }/', required: ['type','hash'] },
 		{ name: 'Stats', url: 'Stats/${ membershipType }/${ membershipId }/${ characterId }/', required: ['membershipType', 'membershipId', 'characterId']},
         { name: 'Account', url: '${ membershipType }/Account/${ membershipId }/', required: ['membershipType', 'membershipId'] },
         { name: 'Character', url: '${ membershipType }/Account/${ membershipId }/Character/${ characterId }/', required: ['membershipType', 'membershipId', 'characterId'] },

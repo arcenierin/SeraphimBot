@@ -18,9 +18,14 @@ module.exports = {
 				}
 				elos.sort(function(a, b) {return a - b; });
 				//console.log(elos[elos.length - 1]);
-				var elo = parseInt(elos[elos.length - 1]);
-				console.log(elo);
-				return callback(elo);
+				var top = parseInt(elos[elos.length - 1]);
+				var sum = 0;
+				for(i = 0; i < elos.length; i++){
+					sum += elos[i];
+				}
+				var avg = sum/elos.length;
+				console.log(avg);
+				return callback(avg);
 			});
 		});
 		

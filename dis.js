@@ -6,6 +6,7 @@ var colors = require('colors');
 var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
+var Jimp = require('jimp');
 var Destiny = require('./destiny-client');
 var guardianApi = require('./guardiangg/guardian')
 var querystring = require('querystring');
@@ -24,12 +25,13 @@ client.on('ready', () => {
 	updateGroupsList();
 	updateLinksList();
 });
-
+//game modes for guardian.gg
 var gg_modes = {
 	"skirmish": "9", 
 	"control": "10", 
 	"clash": "12", 
 	"rumble": "13", 
+	"trials": "14",
 	"ironbanner": "19",
 	"elimination": "23",
 	"rift": "24",
@@ -38,25 +40,42 @@ var gg_modes = {
 	"all": "34",
 	"rumblesupremacy": "531"
 }
-var VERSION = "1.1.1";
-var changelog = "```1.1.1: \n"+
-				"	 1) Added !destiny raids <secondstat>.\n" +
-				"	 2) !destiny kd now gets data from a specified character. Defaults to 0"+
-				"	 3)	Moved the destiny-client module from /node-modules to / to stop xervo from overwritting changes to the endpoints.js file."+
-				"```";
+
+var months = {
+	"1": "Jan",
+	"2": "Feb",
+	"3": "Mar",
+	"4": "Apr",
+	"5": "May",
+	"6": "Jun",
+	"7": "Jul",
+	"8": "Aug",
+	"9": "Sep",
+	"10": "Oct",
+	"11": "Nov",
+	"12": "Dec"
+}
+var VERSION = "1.2";
+var changelog = "1.2: \n" +
+				"	 1) Added !destiny current command.\n"+
+				" 	 2) Began migrating using channel.sendMessage() to channel.sendEmbed()."
 
 client.on('message', message => {
+	//update the list of messages with the send message.
     messages.push(message);
     if(message.content === "!ping"){
 	message.reply('You called? (This bot was made by Ben (NullRoz007) and Reusableduckk, @ one of them if there are any problems.\nCurrent Version: '+VERSION);
     }
-	else if(message.content == "!changelog"){
+	else if(message.content ==="!changelog"){
 		message.channel.sendMessage("Current Version: "+VERSION+"\n"+"Change Log: \n"+changelog);
 	}
+	
+	//clear messages from channel
     else if(message.content === "!clear"){
 		
 		if (hasModPerms(message)){
 			
+			//fetch our messages from the channel
 			var msgPromise = message.channel.fetchMessages(); 
 			
 			msgPromise.then(function (pastMsgs) {
@@ -98,12 +117,17 @@ client.on('message', message => {
 			// No mod perms
 		}
 	} */
-	else if(message.content === "!fixjson"){
+	//rebuild the groups and links
+	else if(message.content === "!rebuild"){
 		if(isBotCommander(message)){
 			try{
 				console.log("Rebuilding groups...");
 				message.channel.sendMessage("Rebuilding groups...");
 				updateGroupsJSON();
+				updateGroupsList();
+				message.channel.sendMessage("Rebuilding destiny<->discord links...");
+				updateLinksJSON();
+				updateLinksList();
 			}
 			catch(err){
 				console.log(err);
@@ -178,7 +202,9 @@ client.on('message', message => {
 			"!destiny elo : Get your current highest Elo from guardian.gg\n" +
 			"!destiny kd <games> <characterindex 0-2>: Get your kd ratio over a number of games, including your average kd ratio over these games.\n" +
 			"!destiny raids <optionalstat> : Get your raid clears on all characters, + an option stat\n"+
-			"!destiny elograph <gamemode> <graphtype> <specialoption> : graphtype can be anything found at the bottom of this webpage: https://plot.ly/javascript, however scatter works best. specialoptions can only be -f, for fill.";
+			"!destiny elograph <gamemode> <graphtype> <specialoption> : graphtype can be anything found at the bottom of this webpage: https://plot.ly/javascript, however scatter works best. specialoptions can only be -f, for fill.\n" + 
+			"!destiny current : Displays the current activity you are in.";
+			
 		message.channel.sendMessage(output);	
     }
 	else if(message.content === "!mygroups"){
@@ -222,7 +248,39 @@ client.on('message', message => {
     }
     else if(message.content.split(' ').length >= 1){
 		var splitMessage = message.content.split(' ');
-	    	if(splitMessage[0] === "!clear"){
+			
+			if(splitMessage[0] === "!createRole"){
+				if(hasModPerms(message))
+				{
+					var rolename = splitMessage[1];
+					if(rolename[0] == '"'){
+						var string_split = message.content.split('"')[1];
+						rolename = string_split;
+					}
+					var guild = message.guild;
+					guild.createRole({
+						name: rolename,
+					})
+					.then(role => message.channel.sendMessage("Created role: "+rolename))
+					.catch(console.error);
+				}
+				
+			}
+			else if(splitMessage[0] === "!deleteRole"){
+				if(hasModPerms(message)){
+					var rolename = splitMessage[1];
+					if(rolename[0] == '"'){
+						var string_split = message.content.split('"')[1];
+						rolename = string_split;
+					}
+					var role = message.guild.roles.find('name', rolename);
+					role.delete()
+						.then(message.channel.sendMessage("Deleted role: "+rolename))
+						.catch(console.error);
+				}
+				
+			}
+	    	else if(splitMessage[0] === "!clear"){
 			var amount = splitMessage[1];
 			if (hasModPerms(message)){
 			
@@ -292,6 +350,145 @@ client.on('message', message => {
 						}
 					}
 				}
+				else if(splitMessage[1] === "summary"){
+					if(splitMessage.length == 2){
+						var messageName = String(message.member.user.username);
+						if(splitMessage.length == 3){
+							messageName = splitMessage[2];
+						}
+						for(i = 0; i < linked_users.length; i++){
+							if(String(linked_users[i].discordName) == messageName){
+								var id = linked_users[i].destinyId;
+								var grScore = "";
+								var charCount = 0;
+								var characters = [];
+								var characterSummarys = [];
+								console.log(id);
+								destiny.Account({
+									membershipType: 2,
+									membershipId: id
+								}).then(res => {
+									//console.log(res);
+									grScore = res.grimoireScore;
+									charCount = res.characters.length;
+									console.log(charCount);
+									for(x = 0; x < charCount; x++){
+										var character = res.characters[x];
+										var characterBase = character.characterBase;
+										var characterGender = characterBase.genderType;
+										var characterLevel = character.characterLevel;
+										var powerLevel = characterBase.powerLevel;
+										
+										var character_def = {'Level': characterLevel, 'Gender':characterGender, 'Light': powerLevel};
+										console.log(character_def);
+										characterSummarys.push(character_def);
+									}
+									var output = "Player summary for "+messageName+":\nGrimiore Score: "+grScore + " - Characters: " + charCount+"\n";
+									for(x = 0; x < characterSummarys.length; x++){
+										var summary = characterSummarys[x];
+										output += "```Level: "+summary.Level;
+									}
+									
+									console.log(output);
+									message.channel.sendMessage(output);
+									
+								});
+							}
+						}
+					}
+				}
+				else if(splitMessage[1] === "xur"){
+					destiny.Advisors({
+					}).then(res => {
+						var status = res.activities.xur.status;
+						var vendorHash = res.activities.xur.vendorHash;
+						console.log(vendorHash);
+						destiny.Manifest({
+							type: 'Vendor',
+							hash: vendorHash
+						}).then(ven => {
+							console.log(ven);
+						});
+						if(status.active){
+							
+						}
+						else{
+							message.channel.sendMessage("Xur is not avaliable at this time.");
+						}
+					});
+				}
+				else if(splitMessage[1] === "current"){
+					for(i = 0; i < linked_users.length; i++){
+						var messageName = String(message.member.user.username);
+						if(splitMessage.length == 3){
+							messageName = splitMessage[2];
+						}
+						if(String(linked_users[i].discordName) == messageName){
+							var id = linked_users[i].destinyId;
+							console.log(id);
+							destiny.Account({
+								membershipType: 2,
+								membershipId: id
+							}).then(res => {
+								//console.log(res.characters[0].characterBase);
+								var output = "";
+								var current_hash = res.characters[0].characterBase.currentActivityHash;
+								if(current_hash != 0){
+									destiny.Manifest({
+										type: 'Activity',
+										hash: current_hash
+									}).then(act => {
+										console.log(act);
+										var activity_name = act.activity.activityName;
+										var description = act.activity.activityDescription;
+										var icon = act.activity.icon;
+										
+										var destination_hash = act.activity.destinationHash;
+										var activityTypeHash = act.activity.activityTypeHash;
+										destiny.Manifest({
+											type: "Destination",
+											hash: destination_hash
+										}).then(des => {
+											console.log(des);
+											var destination_name = des.destination.destinationName;
+											output = message.member.user.username + " is in "+destination_name + ", playing: " + activity_name+"\n\n";	
+											var color = 0x000000;
+											var level = act.activity.activityLevel;
+											if(level <= 10){
+												color = 0xFFFFFF;
+											}
+											else if(level >= 11 && level <= 20){
+												color = 0x00AE86;
+											}
+											else if(level >= 21 && level <= 30){
+												color = 0xADD8E6;
+											}
+											else if(level >= 31 && level <= 40){
+												color = 0x800080;
+											}
+											else if(level > 40){
+												color = 0xFDFF00;
+											}
+											const embed = new Discord.RichEmbed()
+												.setTitle(output)
+												.setColor(color)
+												.addField("Description: ", act.activity.activityDescription)
+												.setImage("http://www.bungie.net/"+des.destination.icon)
+												.setThumbnail("http://www.bungie.net/"+icon);
+											console.log(embed);
+											message.channel.sendEmbed(embed);											
+										});										
+									});
+								}
+								else{
+									output = message.member.user + " is not online or is in Orbit."
+									message.channel.sendMessage(output);
+								}
+							
+							});
+						}
+					}
+				}
 				else if(splitMessage[1] === "elo"){
 					if(splitMessage.length == 2){
 						var messageName = String(message.member.user.username);
@@ -304,7 +501,7 @@ client.on('message', message => {
 									var id = linked_users[i].destinyId;
 									console.log(id);
 									guardianApi.getElo(id, function(elo){
-										message.channel.sendMessage(messageName+"'s Elo is "+elo);
+										message.channel.sendMessage(messageName+"'s Average Elo is "+elo);
 									});
 								}
 							}
@@ -313,7 +510,7 @@ client.on('message', message => {
 					else if(splitMessage.length == 3){
 						
 						
-					}
+					}	
 				}
 				else if(splitMessage[1] === "elograph"){
 							var messageName = String(message.member.user.username);
@@ -335,9 +532,18 @@ client.on('message', message => {
 										var y_array = [];
 										
 										for(i = 0; i < eloChart.length; i++){
-											console.log(eloChart[i].mode)
+											//console.log(eloChart[i].mode)
 											if(eloChart[i].mode == gameModeCode){
-												gamemodeData.push({"x": eloChart[i].x, "y": eloChart[i].y})
+												var date = new Date();
+												date.setTime(eloChart[i].x);
+												
+												var month = date.getUTCMonth() + 1; 
+												var day = date.getUTCDate();
+												var year = date.getUTCFullYear();
+												var date_string = day+"/"+month + "/" + year;
+												
+												//console.log("Date: "+String(date));
+												gamemodeData.push({"x": date_string, "y": eloChart[i].y})
 											}
 										}
 										
@@ -363,8 +569,8 @@ client.on('message', message => {
 										var figure = {'data': [dataArray]};
 										var imgOpts = {
 											format: 'png',
-											width: 500, 
-											height: 250
+											width: 840, 
+											height: 480
 										};
 										
 										plotly.getImage(figure, imgOpts, function(err, imgStream){
@@ -655,6 +861,7 @@ client.on('message', message => {
 					
 					var event = events.find(x => x.id == id);
 					Events.removePlayer(event, message.member.user.username);
+					message.reply("removed you from "+event.name);
 					updateGroupsJSON();
 				}
 			}
@@ -688,6 +895,7 @@ client.on('message', message => {
 							console.log(message.member.user.username + ", "+event.creator);
 							message.channel.sendMessage("You can't delete that group because you are not the creator!");
 						}
+						message.channel.sendMessage("Removed group: "+event.name);
 						updateGroupsJSON();
 					}
 					catch(err){
@@ -920,9 +1128,7 @@ client.on("guildMemberAdd", (member) => {
 		if(client.channels.array()[i].name == "general")
 		{
 			client.channels.array()[i].sendMessage("Welcome to Seraphim Elite "+member.user+", make sure you read the rules in # welcome-read-me, and feel free to introduce yourself to the rest of the clan! If you haven't already, you can set Seraphim Elite as your active clan at: https://www.bungie./en/Clan/Detail/1866434");
-			//console.log(client.channels.array()[i].guild.roles);
 			var initRole = client.channels.array()[i].guild.roles.find('name', 'Initiate');
-			//console.log(client.channels.array()[i].guild.roles);
 			member.addRole(initRole.id);
 		}
 		
@@ -935,7 +1141,7 @@ module.exports = {
 			//client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
 	}
 }
-process.on('uncaughtException', function(err) {
+/*process.on('uncaughtException', function(err) {
   for(i = 0; i < client.channels.array().length; ++i){
 		if(client.channels.array()[i].name == "general")
 		{
@@ -943,7 +1149,7 @@ process.on('uncaughtException', function(err) {
 		}
 		
 	}
-});
+});*/
 
 // returns event
 // null if id is not found
@@ -1166,6 +1372,19 @@ function isBotCommander(input){
 	console.log(input.member.roles);
 	return input.member.roles.exists('name', 'Bot Commander')
 			
+}
+function fileExists(file){
+	fs.stat(file, function(err, stat){
+		if(err == null){
+			return true;
+		}
+		else {
+			return false;
+		}
+	});
+}
+function random (low, high) {
+    return Math.random() * (high - low) + low;
 }
 function hasModPerms(input) {
 	try{

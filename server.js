@@ -18,7 +18,9 @@ module.exports = {
 		});
 	}
 }
-
+app.get('/image/:filename', function(req, res){
+	return res.sendFile(__dirname + "/home/"+req.params['filename']);
+});
 
 
 /*app.get('/groups/', function(req, res){
