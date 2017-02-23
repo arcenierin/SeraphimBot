@@ -14,7 +14,8 @@
     "lodash": "^3.9.1",
     "plotly": "1.0.6",
     "querystring": "^0.2.0",
-    "sha1": "^1.1.1"
+    "sha1": "^1.1.1",
+    "striptags": "^3.0.1"
   },
   "engines": {
     "node": "6.9.1"

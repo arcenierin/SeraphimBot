@@ -13,7 +13,7 @@ var querystring = require('querystring');
 var sha1 = require('sha1');
 var util = require('util');
 var plotly = require('plotly')("NullRoz007", "2yYBQDRLXf5OyHfHUHuA");
-
+var striptags = require('striptags');
 var messages = [];
 var events = [];
 var event_offset = 0;
@@ -55,10 +55,9 @@ var months = {
 	"11": "Nov",
 	"12": "Dec"
 }
-var VERSION = "1.2";
-var changelog = "1.2: \n" +
-				"	 1) Added !destiny current command.\n"+
-				" 	 2) Began migrating using channel.sendMessage() to channel.sendEmbed()."
+var VERSION = "1.2.2";
+var changelog = "1.2.2: \n" +
+				"	 1) Added !destiny event command"
 
 client.on('message', message => {
 	//update the list of messages with the send message.
@@ -201,8 +200,10 @@ client.on('message', message => {
 					"!destiny kd <games> <characterindex 0-2>: Get your kd ratio over a number of games, including your average kd ratio over these games.\n" +
 					"!destiny raids <optionalstat> : Get your raid clears on all characters, + an option stat\n"+
 					"!destiny elograph <gamemode> <graphtype> <specialoption> : graphtype can be anything found at the bottom of this webpage: https://plot.ly/javascript, however scatter works best. specialoptions can only be -f, for fill.\n" + 
-					"!destiny current : Displays the current activity you are in.";
-		
+					"!destiny current : Displays the current activity you are in.\n" + 
+					"!destiny event list : list avaliable events.\n"+
+					"!destiny event <eventname>"
+			
 		message.reply("I'm sending you a DM now...");
 		
 		
@@ -415,11 +416,89 @@ client.on('message', message => {
 						}
 					}
 				}
-				else if(splitMessage[1] === "xur"){
+				else if(splitMessage[1] === "event"){
+					var name = splitMessage[2];
+					console.log(name);
 					destiny.Advisors({
-					}).then(res => {
-						var status = res.activities.xur.status;
-						var vendorHash = res.activities.xur.vendorHash;
+						definitions: true
+					}).then(res => {	
+						if(name == "list"){
+							console.log("!");
+							var m = "";
+							var i = 0;
+							Object.keys(res.activities).forEach(function(key){
+								i++;
+								var val = res.activities[key];
+								console.log(val.identifier);
+								m += String(i)+") " + String(val.identifier)+"\n";
+							});
+							
+							message.channel.sendMessage("Events: \n"+m);
+							return;
+						}
+						var status = res.activities[name].status;
+						var vendorHash = res.activities[name].vendorHash;
+						var act = res.activities[name];
+						var dis = act.display;
+						
+						var tipString = "";
+						for(i = 0; i < dis.tips.length; i++){
+							tipString += String(dis.tips[i]) + "\n";
+						}
+						console.log(dis);
+						var about = dis.about;
+						about = striptags(about);
+						
+						
+						const embed = new Discord.RichEmbed()
+							.setTitle(dis.advisorTypeCategory)
+							.setColor(0x00AE86)
+							.setDescription(about)
+							.setThumbnail("http://bungie.net/"+dis.icon)
+							
+						
+						var activityHash = dis.activityHash;
+						console.log(activityHash);
+						destiny.Manifest({
+							type: 'Activity',
+							hash: activityHash
+						}).then(res => {
+							console.log(res);
+							var name = res.activity.activityName;
+							var about = res.activity.activityDescription;
+							embed.addField("Activity: "+name, about);
+							embed.addField("Tips",tipString);
+							embed.setImage("http://www.bungie.net"+res.activity.pgcrImage);
+							console.log(embed);
+							message.channel.sendEmbed(embed);
+						});
+						
+						//console.log(act);
+					});
+				}
+				else if(splitMessage[1] === "eventvendor"){
+					var name = splitMessage[2];
+					console.log(name);
+					destiny.Advisors({
+						definitions: true
+					}).then(res => {	
+						if(name == "list"){
+							console.log("!");
+							var m = "";
+							var i = 0;
+							Object.keys(res.activities).forEach(function(key){
+								i++;
+								var val = res.activities[key];
+								console.log(val.identifier);
+								m += String(i)+") " + String(val.identifier)+"\n";
+							});
+							
+							message.channel.sendMessage("Event Vendors: \n"+m);
+							return;
+						}
+						var status = res.activities[name].status;
+						var vendorHash = res.activities[name].vendorHash;
+						
 						console.log(vendorHash);
 						destiny.Manifest({
 							type: 'Vendor',
@@ -428,21 +507,56 @@ client.on('message', message => {
 							console.log(ven);
 							//console.log("--------------------------------------------\n" +
 								//ven.vendor.summary.vendorDescription);
+							var categories = ven.vendor.categories;
+							var processed_catagories = [];
+							
+							var sales = ven.vendor.sales;
+							console.log(sales);
 							const embed = new Discord.RichEmbed()
 								.setTitle(ven.vendor.summary.vendorName)
 								.setColor(0xFDFF00)
 								.addField("Description: ", ven.vendor.summary.vendorDescription)
 								//.setImage("http://www.bungie.net/"+ven.vendor.summary.vendorPortrait)
 								.setThumbnail("http://www.bungie.net/"+ven.vendor.summary.vendorPortrait);
-							console.log(embed);
-							message.channel.sendEmbed(embed);
-						});
-						if(status.active){
+							for(i = 0; i < categories.length; i++){
+								var category = categories[i];
+								if(category.displayTitle.includes('Rewards') && !processed_catagories.contains(category.displayTitle)){
+									embed.addField("**Items**", "*Items avaliable for purchase from "+ven.vendor.summary.vendorName+":*", true);
+									//console.log(category);
+									processed_catagories.push(category.displayTitle);
+								}
+								
+							}
+							var itemnames = "";
+							var proc = 0;
+							var sent = false;
+							for(i = 0; i < sales.length; i++){
+								console.log(i);
+								var item = sales[i];
+								//console.log(item);
+								destiny.Manifest({
+									type: 'InventoryItem', 
+									hash: item.itemHash
+								}).then(res => {
+									console.log(res);
+									embed.addField("	"+res.inventoryItem.itemName, "		*"+res.inventoryItem.itemDescription+"*\n");
+									if(embed.fields.length == 7 && !sent){
+										console.log("sending...")
+										message.channel.sendEmbed(embed);
+										sent = true;
+									}
+									
+								});
+								
+							}
 							
+							
+						});
+						if(!status.active){
+							message.channel.sendMessage(name+" is not avaliable at this time.");
+							return;
 						}
-						else{
-							message.channel.sendMessage("Xur is not avaliable at this time.");
-						}
+						
 					});
 				}
 				else if(splitMessage[1] === "current"){
@@ -866,18 +980,27 @@ client.on('message', message => {
 				var id = splitMessage[1];
 				if(id - 1 < events.length && id > 0){
 					var event = events[parseInt(id) - 1];
-					output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================"+"\nRoster:\n";
+					
+					const embed = new Discord.RichEmbed()
+						.setTitle(event.name)
+						.setColor(0x00AE86)
+						.addField("Start Time", event.startTime + "-" + event.timeZone)
+						
+					
+						
+					//output = "```\n================================\n"+event.name+"\n================================\nStart Time: "+event.startTime + "-"+event.timeZone+"\n================================\nGroup ID: "+event.id+"\n================================"+"\nRoster:\n";
 					var playerIndex = 1;
+					var players = "";
 					for(i = 0; i < event.players.length; i++){
 						if(playerIndex==7)
 						{
 							output += "Substitutes:\n";
 						}
-						output += playerIndex+". "+event.players[i]+"\n";
+						players += playerIndex+". "+event.players[i]+"\n";
 						++playerIndex;
 					}
-					output+="```";
-					message.channel.sendMessage(output);
+					embed.addField("Players", players);
+					message.channel.sendEmbed(embed);
 				}
 			}
 		}
@@ -1181,7 +1304,7 @@ module.exports = {
 			//client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
 	}
 }
-/*process.on('uncaughtException', function(err) {
+process.on('uncaughtException', function(err) {
   for(i = 0; i < client.channels.array().length; ++i){
 		if(client.channels.array()[i].name == "general")
 		{
@@ -1189,7 +1312,7 @@ module.exports = {
 		}
 		
 	}
-});*/
+});
 
 // returns event
 // null if id is not found
