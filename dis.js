@@ -20,11 +20,6 @@ var event_offset = 0;
 var linked_users = [];
 var destiny = Destiny('af70e027a7694afc8ed613589bf04a60');
 
-client.on('ready', () => {
-	console.log('Client Connected!');	
-	updateGroupsList();
-	updateLinksList();
-});
 //game modes for guardian.gg
 var gg_modes = {
 	"skirmish": "9", 
@@ -58,6 +53,17 @@ var months = {
 var VERSION = "1.2.2";
 var changelog = "1.2.2: \n" +
 				"	 1) Added !destiny event command"
+				
+client.on('ready', () => {
+	console.log('Client Connected!');	
+	updateGroupsList();
+	updateLinksList();
+	
+	client.user.setGame("Ver: " + VERSION)
+		.then(console.log("Set the game status"))
+		.catch(err => console.log(err));
+		
+});
 
 client.on('message', message => {
 	//update the list of messages with the send message.
@@ -558,6 +564,115 @@ client.on('message', message => {
 						}
 						
 					});
+				}
+				else if(splitMessage[1] === "weeklysummary"){
+					destiny.Advisors({
+						definitions: true
+					}).then(adv => {
+						// NIGHTFALL -----------------------------------------------------------
+						var nfHash = adv.activities["nightfall"].display.activityHash;
+						var nfSkulls = adv.activities["nightfall"].extended.skullCategories[0].skulls;
+						
+						destiny.Manifest({
+							type: 'Activity',
+							hash: nfHash
+							}).then(res => {								
+								var name = res.activity.activityName;								
+								const embed = new Discord.RichEmbed()
+									.setTitle("Nightfall: " + name)
+									.setThumbnail("http://bungie.net/"+res.activity.icon)
+									.setColor(0x00AE86);
+									
+								var i;
+								for(i = 0; i < nfSkulls.length; i++){
+									embed.addField(nfSkulls[i].displayName, nfSkulls[i].description);
+								}
+								
+								//console.log(embed);
+								message.channel.sendEmbed(embed);
+							});
+						
+						// HEROICS -----------------------------------------------------------
+						var hsHash = adv.activities["heroicstrike"].display.activityHash;
+						var hsSkulls = adv.activities["heroicstrike"].extended.skullCategories[0].skulls;
+							
+						destiny.Manifest({
+							type: 'Activity',
+							hash: hsHash
+							}).then(res => {
+								//console.log(res.activity);								
+								var name = res.activity.activityName;								
+								const embed = new Discord.RichEmbed()
+									.setTitle("Heroic Playlist: " + name)
+									.setThumbnail("http://bungie.net/"+res.activity.icon)
+									.setColor(0x00AE76);
+									
+								var i;
+								for(i = 0; i < hsSkulls.length; i++){
+									embed.addField(hsSkulls[i].displayName, hsSkulls[i].description);
+								}
+								
+								//console.log(embed);
+								message.channel.sendEmbed(embed);
+							});
+						
+						// KINGS FALL
+						var kfHash = adv.activities["kingsfall"].display.activityHash;
+						
+						destiny.Manifest({
+							type: 'Activity',
+							hash: kfHash
+							}).then(res => {
+								//console.log(res.activity);
+								var kfSkulls = res.activity.skulls;
+								var name = res.activity.activityName;
+
+								var start = new Date("2015-12-8");
+								var today = new Date();
+								var weeks = Math.round((today-start)/ 604800000);
+								var offset = 1;
+								var ind = ((weeks % 3) + offset) % 3; 
+								
+								const embed = new Discord.RichEmbed()
+									.setTitle("Raid: " + name)
+									.setThumbnail("http://bungie.net/"+kfSkulls[ind].icon)
+									.setColor(0x00AE76);
+											
+								embed.addField(kfSkulls[ind].displayName, kfSkulls[ind].description);
+								
+								//console.log(embed);
+								message.channel.sendEmbed(embed);
+							});
+						
+						// WOTM
+						var wmHash = adv.activities["wrathofthemachine"].display.activityHash;
+						
+						destiny.Manifest({
+							type: 'Activity',
+							hash: wmHash
+							}).then(res => {
+								console.log(res.activity);
+								var wmSkulls = res.activity.skulls;
+								var name = res.activity.activityName;
+
+								var start = new Date("2016-11-1");
+								var today = new Date();
+								var weeks = Math.round((today-start)/ 604800000);
+								var offset = 0;
+								var ind = ((weeks % 2) + offset) % 3;
+								
+								const embed = new Discord.RichEmbed()
+									.setTitle("Raid: " + name)
+									.setThumbnail("http://bungie.net/"+wmSkulls[ind].icon)
+									.setColor(0x00AE76);
+											
+								embed.addField(wmSkulls[ind].displayName, wmSkulls[ind].description);
+								
+								//console.log(embed);
+								message.channel.sendEmbed(embed);
+							});
+						
+					}).catch(err => console.log(err));
 				}
 				else if(splitMessage[1] === "current"){
 					for(i = 0; i < linked_users.length; i++){
@@ -1300,8 +1415,8 @@ client.on("guildMemberAdd", (member) => {
 
 module.exports = {
 	Start: function(){
-			client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
-			//client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
+			//client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
+			client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
 	}
 }
 process.on('uncaughtException', function(err) {
