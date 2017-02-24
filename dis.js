@@ -20,6 +20,13 @@ var event_offset = 0;
 var linked_users = [];
 var destiny = Destiny('af70e027a7694afc8ed613589bf04a60');
 
+var stat_hashes = {
+	"Light": "3897883278",
+
+	"144602215": "Intellect", 
+	"1735777505": "Discipline",
+	"4244567218": "Strength"
+}
 //game modes for guardian.gg
 var gg_modes = {
 	"skirmish": "9", 
@@ -50,9 +57,11 @@ var months = {
 	"11": "Nov",
 	"12": "Dec"
 }
-var VERSION = "1.2.2";
-var changelog = "1.2.2: \n" +
-				"	 1) Added !destiny event command"
+var VERSION = "1.2.3";
+var changelog = VERSION+": \n" +
+				"	 1) added !destiny weeklysummary\n" +
+				"	 2) Bot no longer accepts commands from DM channels\n" +
+				"	 3) Bot displays version number in Playing status";
 				
 client.on('ready', () => {
 	console.log('Client Connected!');	
@@ -66,6 +75,12 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
+	
+	// Skip dm and group messages
+	if(message.channel.type != "text"){
+		return;
+	}
+	
 	//update the list of messages with the send message.
     messages.push(message);
     if(message.content === "!ping"){
@@ -208,7 +223,8 @@ client.on('message', message => {
 					"!destiny elograph <gamemode> <graphtype> <specialoption> : graphtype can be anything found at the bottom of this webpage: https://plot.ly/javascript, however scatter works best. specialoptions can only be -f, for fill.\n" + 
 					"!destiny current : Displays the current activity you are in.\n" + 
 					"!destiny event list : list avaliable events.\n"+
-					"!destiny event <eventname>"
+					"!destiny event <eventname>\n"+
+					"!destiny weeklysummary  :  can only be called from announcements"
 			
 		message.reply("I'm sending you a DM now...");
 		
@@ -566,60 +582,26 @@ client.on('message', message => {
 					});
 				}
 				else if(splitMessage[1] === "weeklysummary"){
+					if(message.channel.name != "announcements"){
+						return;
+					}
 					destiny.Advisors({
 						definitions: true
 					}).then(adv => {
-						// NIGHTFALL -----------------------------------------------------------
-						var nfHash = adv.activities["nightfall"].display.activityHash;
-						var nfSkulls = adv.activities["nightfall"].extended.skullCategories[0].skulls;
+						// SET UP
+						var k;
+						var num = 7;
+						var embedList = [];
+						for(k = 0;k < num; k++){
+							embedList[k] = new Discord.RichEmbed();
+						}
 						
-						destiny.Manifest({
-							type: 'Activity',
-							hash: nfHash
-							}).then(res => {								
-								var name = res.activity.activityName;								
-								const embed = new Discord.RichEmbed()
-									.setTitle("Nightfall: " + name)
-									.setThumbnail("http://bungie.net/"+res.activity.icon)
-									.setColor(0x00AE86);
-									
-								var i;
-								for(i = 0; i < nfSkulls.length; i++){
-									embed.addField(nfSkulls[i].displayName, nfSkulls[i].description);
-								}
-								
-								//console.log(embed);
-								message.channel.sendEmbed(embed);
-							});
+						var promises = [];
 						
-						// HEROICS -----------------------------------------------------------
-						var hsHash = adv.activities["heroicstrike"].display.activityHash;
-						var hsSkulls = adv.activities["heroicstrike"].extended.skullCategories[0].skulls;
-							
-						destiny.Manifest({
-							type: 'Activity',
-							hash: hsHash
-							}).then(res => {
-								//console.log(res.activity);								
-								var name = res.activity.activityName;								
-								const embed = new Discord.RichEmbed()
-									.setTitle("Heroic Playlist: " + name)
-									.setThumbnail("http://bungie.net/"+res.activity.icon)
-									.setColor(0x00AE76);
-									
-								var i;
-								for(i = 0; i < hsSkulls.length; i++){
-									embed.addField(hsSkulls[i].displayName, hsSkulls[i].description);
-								}
-								
-								//console.log(embed);
-								message.channel.sendEmbed(embed);
-							});
-						
-						// KINGS FALL
+						// 0 KINGS FALL
 						var kfHash = adv.activities["kingsfall"].display.activityHash;
 						
-						destiny.Manifest({
+						promises.push(destiny.Manifest({
 							type: 'Activity',
 							hash: kfHash
 							}).then(res => {
@@ -633,25 +615,25 @@ client.on('message', message => {
 								var offset = 1;
 								var ind = ((weeks % 3) + offset) % 3; 
 								
-								const embed = new Discord.RichEmbed()
+								embedList[0]
 									.setTitle("Raid: " + name)
 									.setThumbnail("http://bungie.net/"+kfSkulls[ind].icon)
-									.setColor(0x00AE76);
+									.setColor(0x000000);
 											
-								embed.addField(kfSkulls[ind].displayName, kfSkulls[ind].description);
+								embedList[0].addField(kfSkulls[ind].displayName, kfSkulls[ind].description);
 								
 								//console.log(embed);
-								message.channel.sendEmbed(embed);
-							});
+								//message.channel.sendEmbed(embedList[0]);
+							}));
 						
-						// WOTM
+						// 1 WOTM
 						var wmHash = adv.activities["wrathofthemachine"].display.activityHash;
 						
-						destiny.Manifest({
+						promises.push(destiny.Manifest({
 							type: 'Activity',
 							hash: wmHash
 							}).then(res => {
-								console.log(res.activity);
+								//console.log(res.activity);
 								var wmSkulls = res.activity.skulls;
 								var name = res.activity.activityName;
 
@@ -661,18 +643,231 @@ client.on('message', message => {
 								var offset = 0;
 								var ind = ((weeks % 2) + offset) % 3;
 								
-								const embed = new Discord.RichEmbed()
+								embedList[1]
 									.setTitle("Raid: " + name)
 									.setThumbnail("http://bungie.net/"+wmSkulls[ind].icon)
-									.setColor(0x00AE76);
+									.setColor(0xFF0000);
 											
-								embed.addField(wmSkulls[ind].displayName, wmSkulls[ind].description);
+								embedList[1].addField(wmSkulls[ind].displayName, wmSkulls[ind].description);
 								
 								//console.log(embed);
-								message.channel.sendEmbed(embed);
+								//message.channel.sendEmbed(embed);
+							}));
+							
+						// 2 NIGHTFALL -----------------------------------------------------------
+						var nfHash = adv.activities["nightfall"].display.activityHash;
+						var nfSkulls = adv.activities["nightfall"].extended.skullCategories[0].skulls;
+						
+						promises.push(destiny.Manifest({
+							type: 'Activity',
+							hash: nfHash
+							}).then(res => {								
+								var name = res.activity.activityName;								
+								embedList[2]
+									.setTitle("Nightfall: " + name)
+									.setThumbnail("http://bungie.net/"+res.activity.icon)
+									.setColor(0x0000FF);
+									
+								var i;
+								for(i = 0; i < nfSkulls.length; i++){
+									embedList[2].addField(nfSkulls[i].displayName, nfSkulls[i].description);
+								}
+								
+								//console.log(embed);
+								//message.channel.sendEmbed(embed);
+							}));
+						
+						// 3 HEROICS -----------------------------------------------------------
+						var hsHash = adv.activities["heroicstrike"].display.activityHash;
+						var hsSkulls = adv.activities["heroicstrike"].extended.skullCategories[0].skulls;
+							
+						promises.push(destiny.Manifest({
+							type: 'Activity',
+							hash: hsHash
+							}).then(res => {
+								//console.log(res.activity);								
+								var name = res.activity.activityName;								
+								embedList[3]
+									.setTitle("Heroic Playlist: " + name)
+									.setThumbnail("http://bungie.net/"+res.activity.icon)
+									.setColor(0x00AE76);
+									
+								var i;
+								for(i = 0; i < hsSkulls.length; i++){
+									embedList[3].addField(hsSkulls[i].displayName, hsSkulls[i].description);
+								}
+								
+								//console.log(embed);
+								//message.channel.sendEmbed(embed);
+							}));
+						
+						
+						
+						// 4 WEEKLY CRUCIBLE
+						var wcHash = adv.activities["weeklycrucible"].display.activityHash;
+						
+						promises.push(destiny.Manifest({
+							type: 'Activity',
+							hash: wcHash
+							}).then(res => {
+								console.log(res.activity);
+								
+								var name = res.activity.activityName;
+								
+								embedList[4]
+									.setTitle("Weekly Crucible: ")
+									.setThumbnail("http://bungie.net/"+res.activity.icon)
+									.setColor(0xFF9900);
+											
+								embedList[4].addField(name, res.activity.activityDescription);
+								
+								//console.log(embed);
+								//message.channel.sendEmbed(embed);
+							}));
+						
+						// 5 ELDERS CHALLENGE
+						promises.push(destiny.Advisors({
+							definitions: true
+						}).then(adv => {
+							var display = adv.activities.elderchallenge.display
+							//console.log(display);
+							//console.log("--------------------------------------");
+							console.log(adv.activities.elderchallenge.extended.skullCategories[0].skulls);
+							console.log(adv.activities.elderchallenge.extended.skullCategories[1]);
+							
+							var modifiers = adv.activities.elderchallenge.extended.skullCategories[0].skulls;
+							var bonuses = adv.activities.elderchallenge.extended.skullCategories[1].skulls
+							
+							embedList[5]
+								.setTitle(display.advisorTypeCategory)
+								.setColor(0x00AE86)
+								.setThumbnail("http://bungie.net/"+display.icon)
+							
+							// Add modifiers and bonuses
+							var i;
+							for(i = 0; i < modifiers.length; i++){
+								embedList[5].addField(modifiers[i].displayName, modifiers[i].description);
+							}
+							for(i = 0; i < bonuses.length; i++){
+								embedList[5].addField(bonuses[i].displayName, bonuses[i].description);
+							}
+						}));
+						
+						// 6 ARTIFACTS
+						var venId = '2190824863'; //Tyra 
+					
+						promises.push(destiny.Vendors({
+							vendorId: venId,
+							definitions: true
+						}).then(vendor => {
+							// From here we can get actual stat values, we only need to call Manifest for item names
+							
+							var items = vendor.saleItemCategories[1].saleItems;
+							
+							var artifacts = [
+							{
+								'name': "",
+								'stat1': ["", "", ""],
+								'stat2': ["", "", ""],
+								'ave': ""
+							},
+							{
+								'name': "",
+								'stat1': ["", "", ""],
+								'stat2': ["", "", ""],
+								'ave': ""
+							},
+							{
+								'name': "",
+								'stat1': ["", "", ""],
+								'stat2': ["", "", ""],
+								'ave': ""
+							}];
+							
+							// Load itemHashes, stats and percentages into complicated array/object thing
+							var i, j;
+							for(i = 0; i < 3; i++){
+								
+								artifacts[i]['name'] = items[i].item.itemHash;
+								var stats = vendor.saleItemCategories[1].saleItems[i].item.stats;
+								
+								for(j = 0; j < 3; j++){
+									//console.log("GOT HERE");
+									
+									if(stats[j].value != 0){
+										if(artifacts[i]['stat1'][0] === ""){
+											artifacts[i]['stat1'][0] = stat_hashes[stats[j].statHash];
+											artifacts[i]['stat1'][1] = stats[j].value;
+											//usableStats['stat1'][2] = maxStats[stats[j].statHash].maximum;
+											artifacts[i]['stat1'][2] = Math.round((stats[j].value/38)*100);
+										} else {
+											artifacts[i]['stat2'][0] = stat_hashes[stats[j].statHash];
+											artifacts[i]['stat2'][1] = stats[j].value;
+											//usableStats['stat2'][2] = maxStats[stats[j].statHash].maximum;
+											artifacts[i]['stat2'][2] = Math.round((stats[j].value/38)*100);
+										}
+									}
+								}
+								// Calculate overall stat %
+								artifacts[i]['ave'] = Math.round((artifacts[i]['stat1'][2] + artifacts[i]['stat2'][2])/2);
+							}
+							
+							// Convert itemHashes to actual names
+							// I couldnt loop this part for the life of me
+							var promises1 = [];
+							promises1.push(destiny.Manifest({
+								type: 'InventoryItem',
+								hash: artifacts[0]['name']
+							}).then(ans => {
+								artifacts[0]['name'] = ans.inventoryItem.itemName;
+							}));
+							
+							promises1.push(destiny.Manifest({
+								type: 'InventoryItem',
+								hash: artifacts[1]['name']
+							}).then(ans => {
+								artifacts[1]['name'] = ans.inventoryItem.itemName;
+							}));
+							
+							promises1.push(destiny.Manifest({
+								type: 'InventoryItem',
+								hash: artifacts[2]['name']
+							}).then(ans => {
+								artifacts[2]['name'] = ans.inventoryItem.itemName;
+							}));
+							
+							// Print results when they all resolve
+							Promise.all(promises1)
+								.then(ans => {
+									embedList[6]
+										.setTitle("Tyra Karn: Iron Lord Atrifacts")
+										//.setThumbnail("http://bungie.net/"+kfSkulls[ind].icon)
+										.setColor(0x9900FF);
+							
+									for(i = 0; i < 3; i++){
+										var temp = artifacts[i]['stat1'][0] + ": " + artifacts[i]['stat1'][2] + "%\n" +
+										   artifacts[i]['stat2'][0] + ": " + artifacts[i]['stat2'][2] + "%\n" +
+										   "Overall: " + artifacts[i]['ave'] + "%"
+										embedList[6].addField(artifacts[i]['name'], temp);
+									}
+									//message.channel.sendEmbed(embed);
+								});
+						}));
+						
+						// PRINT ALL
+						Promise.all(promises)
+							.then(res => {
+								for(i = 0; i < embedList.length; i++){
+									message.channel.sendEmbed(embedList[i]);
+								}
 							});
 						
 					}).catch(err => console.log(err));
+				}
+				else if(splitMessage[1] === "test"){
+					
+					
+					
 				}
 				else if(splitMessage[1] === "current"){
 					for(i = 0; i < linked_users.length; i++){
@@ -1397,6 +1592,7 @@ client.on('message', message => {
 	else if(message.content == "!clearlog"){
 	//WIP
     	}
+		
 });
 
 client.on("guildMemberAdd", (member) => {
@@ -1415,8 +1611,8 @@ client.on("guildMemberAdd", (member) => {
 
 module.exports = {
 	Start: function(){
-			//client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
-			client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
+			client.login('MjQ0NjEzOTYyOTE2NjkxOTY4.CwFLlA.-JAnNUCZg1DdQwbtlIrW1r51xg4'); //BenBot
+			//client.login('MjQxODI2MjM3OTk0MTA2ODgw.Cv2KwA.LSE2UW3q0TY_xlpifGhSr3EijSY'); //DuckBot
 	}
 }
 process.on('uncaughtException', function(err) {
