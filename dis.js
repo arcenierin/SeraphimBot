@@ -5,6 +5,7 @@ const Events = require('./events/event');
 var colors = require('colors');
 var express = require('express');
 var bodyParser = require('body-parser');
+var http = require('http');
 var path = require('path');
 var Jimp = require('jimp');
 var Destiny = require('./destiny-client');
@@ -18,7 +19,8 @@ var messages = [];
 var events = [];
 var event_offset = 0;
 var linked_users = [];
-var destiny = Destiny('af70e027a7694afc8ed613589bf04a60');
+var APIKEY = 'af70e027a7694afc8ed613589bf04a60';
+var destiny = Destiny(APIKEY);
 
 var stat_hashes = {
 	"Light": "3897883278",
@@ -57,11 +59,9 @@ var months = {
 	"11": "Nov",
 	"12": "Dec"
 }
-var VERSION = "1.2.3";
+var VERSION = "1.2.4";
 var changelog = VERSION+": \n" +
-				"	 1) added !destiny weeklysummary\n" +
-				"	 2) Bot no longer accepts commands from DM channels\n" +
-				"	 3) Bot displays version number in Playing status";
+				"	 1) Added !destiny xur (restricted to announcements)";
 				
 client.on('ready', () => {
 	console.log('Client Connected!');	
@@ -157,6 +157,17 @@ client.on('message', message => {
 			message.channel.sendMessage("You are not a Bot Commander, using this command could have unintended consequences ");
 		}
 	}
+	else if(message.content === "!setgame"){
+		if(isBotCommander(message)){
+			client.user.setGame("Ver: " + VERSION)
+			.then(console.log("Set the game status"))
+			.catch(err => console.log(err));
+		}
+		else{
+			message.channel.sendMessage("You are not a Bot Commander, using this command could have unintended consequences ");
+		}
+	}
+	
     else if(message.content === "!log"){
 	var output = "";
 	for(index = 0; index < messages.length; ++index){
@@ -223,8 +234,9 @@ client.on('message', message => {
 					"!destiny elograph <gamemode> <graphtype> <specialoption> : graphtype can be anything found at the bottom of this webpage: https://plot.ly/javascript, however scatter works best. specialoptions can only be -f, for fill.\n" + 
 					"!destiny current : Displays the current activity you are in.\n" + 
 					"!destiny event list : list avaliable events.\n"+
-					"!destiny event <eventname>\n"+
-					"!destiny weeklysummary  :  can only be called from announcements"
+					"!destiny event <eventname> : Get an event, (not working for some events)\n"+
+					"!destiny weeklysummary  :  can only be called from announcements.\n"+
+					"!destiny xur : can only be called from announcements."					
 			
 		message.reply("I'm sending you a DM now...");
 		
@@ -437,6 +449,82 @@ client.on('message', message => {
 							}
 						}
 					}
+				}
+				else if(splitMessage[1] === "xur"){
+					if(message.channel.name != "announcements"){
+						return;
+					}
+					//GET XUR:
+					var promises = [];
+					var embed = new Discord.RichEmbed()
+						.setTitle("Xur - Agent of The Nine")
+						.setThumbnail("http://bungie.net/common/destiny_content/icons/6362418a3d2fd77064a62221b2b8ea89.png")
+						.setDescription("Xûr has arrived... for now...");
+						
+						
+					var fields = [];
+					
+					var item_hashes = [];
+					promises.push(destiny.Xur({
+						}).then(res => {	
+							console.log(res);
+							for(i = 0; i < res.saleItemCategories.length; i++){
+								var category = res.saleItemCategories[i];
+								for(x = 0; x < category.saleItems.length; x++){
+									var item_hash = category.saleItems[x].item.itemHash;
+									item_hashes.push(item_hash);
+									/*destiny.Manifest({
+										type: 'InventoryItem',
+										hash: item_hash
+									}).then(res => {
+										var item_name = res.inventoryItem.itemName;
+										var item_icon = res.inventoryItem.itemIcon;
+										var item_tier_type = res.inventoryItem.itemTierType;
+										var item_type = res.inventoryItem.itemTypeName;
+										item_string += item_name;
+									}));*/
+								}
+								
+							}
+							//message.channel.sendEmbed(embed);
+					}));
+					
+					//when all promises have resolved, send the message:
+					Promise.all(promises)
+						.then(res => {
+							//I just can't be bothered with these promises any more
+							/*getItemNames(item_hashes, function(names){
+								console.log(names);
+							});*/
+							var count = item_hashes.length;
+							var item_promises = [];
+							item_names = [];
+							var proc = 0;
+							for(i = 0; i < count; i++){
+								destiny.Manifest({
+									type: 'InventoryItem',
+									hash: item_hashes[i]
+								}).then(res => {
+									proc += 1;
+									console.log(res);
+									var item_name = res.inventoryItem.itemName;
+									var item_description = res.inventoryItem.itemDescription;
+									var item_type = res.inventoryItem.itemTypeName;
+									console.log(item_name + " - " + item_type);
+									item_names.push({'name': item_name, 'dis': item_description, 'type': item_type});
+									if(proc == item_hashes.length){
+										for(x = 0; x < item_names.length; x++){
+											embed.addField(item_names[x]['name'] + " - " + item_names[x]['type'], item_names[x]['dis']);
+										}
+										message.channel.sendEmbed(embed);
+									}
+								});
+								
+							}
+							
+					});
+					
+					
 				}
 				else if(splitMessage[1] === "event"){
 					var name = splitMessage[2];
@@ -763,7 +851,7 @@ client.on('message', message => {
 							// From here we can get actual stat values, we only need to call Manifest for item names
 							
 							var items = vendor.saleItemCategories[1].saleItems;
-							
+							console.log(vendor);	
 							var artifacts = [
 							{
 								'name': "",
@@ -840,8 +928,8 @@ client.on('message', message => {
 							Promise.all(promises1)
 								.then(ans => {
 									embedList[6]
-										.setTitle("Tyra Karn: Iron Lord Atrifacts")
-										//.setThumbnail("http://bungie.net/"+kfSkulls[ind].icon)
+										.setTitle("Tyra Karn: Iron Lord Artifacts")
+										.setThumbnail("https://www.bungie.net/common/destiny_content/icons/c93bfa7d9753fdf552b223f0c69df006.png")
 										.setColor(0x9900FF);
 							
 									for(i = 0; i < 3; i++){
@@ -865,7 +953,15 @@ client.on('message', message => {
 					}).catch(err => console.log(err));
 				}
 				else if(splitMessage[1] === "test"){
-					
+					var now = Date.now();
+					var dateObj = new Date();
+					dateObj.setTime(now);
+					var month = dateObj.getUTCMonth() + 1;
+					var day = dateObj.getUTCDate();
+					var year = dateObj.getUTCFullYear();
+
+					newdate = day + "/" + month + "/" + year;
+					message.channel.sendMessage(newdate);
 					
 					
 				}
@@ -1830,7 +1926,32 @@ Array.prototype.contains = function(obj) {
     }
     return false;
 }
-
+function getItemNames(itemHashes, callback){
+	var length = itemHashes.length;
+	var names = "";
+	var proc = 0;
+	for(i = 0; i < length; i++){
+		var options = {
+			hostname: 'www.bungie.net', 
+			path: 'Platform/Destiny/Manifest/InventoryItem/'+itemHashes[i]+"/",
+			method: 'GET',
+			headers: {
+				'X-API-KEY': APIKEY,
+			}
+		};	
+		console.log('requesting: '+options.path);
+		var req = http.request(options, function(res){
+			res.on('data', function(body) {
+				console.log(body);
+				proc += 1;
+			});
+		});
+		if(proc == length - 1){
+			callback(names);
+		}
+	}	
+	
+}
 function getGroups(username){
 	var return_events = [];
 	for(i = 0; i < events.length; i++){
