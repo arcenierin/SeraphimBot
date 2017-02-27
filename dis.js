@@ -21,7 +21,7 @@ var event_offset = 0;
 var linked_users = [];
 var APIKEY = 'af70e027a7694afc8ed613589bf04a60';
 var destiny = Destiny(APIKEY);
-
+var request = require('request');
 var stat_hashes = {
 	"Light": "3897883278",
 
@@ -59,9 +59,9 @@ var months = {
 	"11": "Nov",
 	"12": "Dec"
 }
-var VERSION = "1.2.4";
+var VERSION = "1.2.5";
 var changelog = VERSION+": \n" +
-				"	 1) Added !destiny xur (restricted to announcements)";
+				"	 1) Added !twitch : Allows you to see who is streaming on the SeraphimElite twitch channel.";
 				
 client.on('ready', () => {
 	console.log('Client Connected!');	
@@ -259,6 +259,9 @@ client.on('message', message => {
 				.then(console.log("Sucess"))
 				.catch(err => console.log(err));
 		
+    }
+    else if (message.content === "!twitch") {
+        getSeraTwitch(message);
     }
 	else if(message.content === "!mygroups"){
 		var username = message.member.user.username;
@@ -492,14 +495,12 @@ client.on('message', message => {
 					//when all promises have resolved, send the message:
 					Promise.all(promises)
 						.then(res => {
-							//I just can't be bothered with these promises any more
-							/*getItemNames(item_hashes, function(names){
-								console.log(names);
-							});*/
 							var count = item_hashes.length;
 							var item_promises = [];
 							item_names = [];
-							var proc = 0;
+                            var proc = 0;
+
+                            //This is just horrible: 
 							for(i = 0; i < count; i++){
 								destiny.Manifest({
 									type: 'InventoryItem',
@@ -1926,31 +1927,44 @@ Array.prototype.contains = function(obj) {
     }
     return false;
 }
-function getItemNames(itemHashes, callback){
-	var length = itemHashes.length;
-	var names = "";
-	var proc = 0;
-	for(i = 0; i < length; i++){
-		var options = {
-			hostname: 'www.bungie.net', 
-			path: 'Platform/Destiny/Manifest/InventoryItem/'+itemHashes[i]+"/",
-			method: 'GET',
-			headers: {
-				'X-API-KEY': APIKEY,
-			}
-		};	
-		console.log('requesting: '+options.path);
-		var req = http.request(options, function(res){
-			res.on('data', function(body) {
-				console.log(body);
-				proc += 1;
-			});
-		});
-		if(proc == length - 1){
-			callback(names);
-		}
-	}	
-	
+function getSeraTwitch(message) {
+
+    var channeloptions = {
+        url: 'https://api.twitch.tv/kraken/streams/seraphimelite1',
+        headers: {
+            'Accept': 'application/vnd.twitchtv.v3+json',
+            'Client-ID': '4nl43m7wvaltcly6fsm921811950ij'
+        }
+    };
+    
+    request(channeloptions, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            var channel = JSON.parse(body);
+            console.log(channel);
+
+            var stream = channel.stream;
+            var embed = new Discord.RichEmbed()
+                .setTitle("Seraphim Elite Twitch Channel")
+            if (!stream) {
+                embed.setDescription("No one is streaming currently... \nhttps://www.twitch.tv/seraphimelite1")
+                embed.setThumbnail("https://static-cdn.jtvnw.net/jtv_user_pictures/seraphimelite1-profile_image-4830ebfdb113f773-300x300.png");
+                embed.setURL("https://www.twitch.tv/seraphimelite1");
+                
+            }
+            else {
+                var title = stream.channel.status;
+				embed.setTitle(title);
+				embed.setDescription("Game: "+stream.game+"\nhttps://www.twitch.tv/seraphimelite1");
+				embed.setImage(stream.preview.large);
+				embed.setThumbnail("https://static-cdn.jtvnw.net/jtv_user_pictures/seraphimelite1-profile_image-4830ebfdb113f773-300x300.png");
+                embed.setURL("https://www.twitch.tv/seraphimelite1");
+            }
+			message.channel.sendEmbed(embed);
+        }
+        else if (!error) {
+            console.log(response);
+        }
+    });
 }
 function getGroups(username){
 	var return_events = [];
