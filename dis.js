@@ -59,9 +59,9 @@ var months = {
 	"11": "Nov",
 	"12": "Dec"
 }
-var VERSION = "1.2.5";
+var VERSION = "1.2.6";
 var changelog = VERSION+": \n" +
-				"	 1) Added !twitch : Allows you to see who is streaming on the SeraphimElite twitch channel.";
+				"	 1) !twitch command now displays hosted channels as well.";
 				
 client.on('ready', () => {
 	console.log('Client Connected!');	
@@ -211,7 +211,8 @@ client.on('message', message => {
 		var h_gen = "**General Commands**\n" +
 					"!ping  :  A tiny bit about the bot\n" +
 					"!changelog : Display the Changelog\n" +
-					"!help : Display this message\n\n";
+					"!help : Display this message\n\n"+
+					"!twitch : Display what is currently streaming on the Twitch Account";
 			
 		
 		var h_lfg = "**LFG Commands**\n" +
@@ -1929,7 +1930,7 @@ Array.prototype.contains = function(obj) {
 }
 function getSeraTwitch(message) {
 
-    var channeloptions = {
+    var baseoptions = {
         url: 'https://api.twitch.tv/kraken/streams/seraphimelite1',
         headers: {
             'Accept': 'application/vnd.twitchtv.v3+json',
@@ -1937,18 +1938,61 @@ function getSeraTwitch(message) {
         }
     };
     
-    request(channeloptions, function (error, response, body) {
+    request(baseoptions, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var channel = JSON.parse(body);
-            console.log(channel);
-
             var stream = channel.stream;
             var embed = new Discord.RichEmbed()
                 .setTitle("Seraphim Elite Twitch Channel")
             if (!stream) {
-                embed.setDescription("No one is streaming currently... \nhttps://www.twitch.tv/seraphimelite1")
-                embed.setThumbnail("https://static-cdn.jtvnw.net/jtv_user_pictures/seraphimelite1-profile_image-4830ebfdb113f773-300x300.png");
-                embed.setURL("https://www.twitch.tv/seraphimelite1");
+                
+				
+				var channeloptions = {
+					url: 'https://api.twitch.tv/kraken/channels/seraphimelite1',
+						headers: {
+							'Accept': 'application/vnd.twitchtv.v3+json',
+							'Client-ID': '4nl43m7wvaltcly6fsm921811950ij'
+						}
+				};
+				
+				request(channeloptions, function (error, response, body){
+					var whole_channel = JSON.parse(body);
+					var id = whole_channel._id;
+					console.log(id);
+					
+					var host_options = {
+						url: "http://tmi.twitch.tv/hosts?include_logins=1&host="+id
+					};
+					request(host_options, function(error, response, body){
+						var hostedValue = JSON.parse(body);
+						console.log(hostedValue);
+						if(hostedValue.hosts[0].host_login == hostedValue.hosts[0].target_login){
+							embed.setDescription("No one is streaming currently... \nhttps://www.twitch.tv/seraphimelite1")
+							embed.setThumbnail("https://static-cdn.jtvnw.net/jtv_user_pictures/seraphimelite1-profile_image-4830ebfdb113f773-300x300.png");
+							embed.setURL("https://www.twitch.tv/seraphimelite1");
+							message.channel.sendEmbed(embed);
+						}
+						else{
+							embed.setDescription("Hosting: "+hostedValue.hosts[0].target_display_name+"\nhttps://www.twitch.tv/"+hostedValue.hosts[0].target_login);
+							embed.setThumbnail("https://static-cdn.jtvnw.net/jtv_user_pictures/seraphimelite1-profile_image-4830ebfdb113f773-300x300.png");
+							var hostedoptions = {
+								url: 'https://api.twitch.tv/kraken/streams/'+hostedValue.hosts[0].target_login,
+									headers: {
+										'Accept': 'application/vnd.twitchtv.v3+json',
+										'Client-ID': '4nl43m7wvaltcly6fsm921811950ij'
+									}
+								};
+							request(hostedoptions, function(error, response, body){
+								var channel = JSON.parse(body);
+								var image_link = channel.profile_banner;
+								console.log(channel.stream.preview.large);
+								embed.setImage(channel.stream.preview.large);
+								message.channel.sendEmbed(embed);
+							});
+							
+						}
+					});
+				});
                 
             }
             else {
@@ -1958,8 +2002,9 @@ function getSeraTwitch(message) {
 				embed.setImage(stream.preview.large);
 				embed.setThumbnail("https://static-cdn.jtvnw.net/jtv_user_pictures/seraphimelite1-profile_image-4830ebfdb113f773-300x300.png");
                 embed.setURL("https://www.twitch.tv/seraphimelite1");
+				message.channel.sendEmbed(embed);
             }
-			message.channel.sendEmbed(embed);
+			
         }
         else if (!error) {
             console.log(response);
