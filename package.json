@@ -7,8 +7,10 @@
     "body-parser": "1.15.2",
     "colors": "1.1.2",
     "discord.js": "11.0.0",
+    "dominant-color": "0.0.1",
     "es6-promise": "^2.1.1",
     "express": "4.14.0",
+    "https": "^1.0.0",
     "isomorphic-fetch": "^2.1.0",
     "jimp": "^0.2.27",
     "lodash": "^3.9.1",
@@ -18,7 +20,8 @@
     "request": "^2.79.0",
     "sha1": "^1.1.1",
     "striptags": "^3.0.1",
-    "twitch-api": "^0.4.5"
+    "twitch-api": "^0.4.5",
+    "uws": "^0.13.0"
   },
   "engines": {
     "node": "6.9.1"

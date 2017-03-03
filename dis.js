@@ -59,9 +59,11 @@ var months = {
 	"11": "Nov",
 	"12": "Dec"
 }
-var VERSION = "1.2.6";
+var VERSION = "1.3.0";
 var changelog = VERSION+": \n" +
-				"	 1) !twitch command now displays hosted channels as well.";
+				"	 1) Server now supports a bungie redirect url: http://seraphimbot.mod.bz/authenticate\n"+
+				"    2) Began prep work for endpoints requiring Authentication: \n"+
+				"	 3) Added !destiny auth : Authenticate your Bungie.net Account, will be used later."
 				
 client.on('ready', () => {
 	console.log('Client Connected!');	
@@ -84,7 +86,7 @@ client.on('message', message => {
 	//update the list of messages with the send message.
     messages.push(message);
     if(message.content === "!ping"){
-	message.reply('You called? (This bot was made by Ben (NullRoz007) and Reusableduckk, @ one of them if there are any problems.\nCurrent Version: '+VERSION);
+	message.reply('You called? (This bot was made by Ben (NullRoz007) and Reusableduckk, @ one of them if there are any problems. Check out the source at: https://github.com/NullRoz007/SeraphimBot/ \nCurrent Version: '+VERSION);
     }
 	else if(message.content ==="!changelog"){
 		message.channel.sendMessage("Current Version: "+VERSION+"\n"+"Change Log: \n"+changelog);
@@ -264,6 +266,7 @@ client.on('message', message => {
     else if (message.content === "!twitch") {
         getSeraTwitch(message);
     }
+	
 	else if(message.content === "!mygroups"){
 		var username = message.member.user.username;
 		var user_events = getGroups(username);
@@ -369,7 +372,16 @@ client.on('message', message => {
 				}
 			}
 			else if(splitMessage[0] === "!destiny"){
-				if(splitMessage[1] === "link"){
+				if(splitMessage[1] === "twab"){
+					if(message.channel.name != "announcements"){
+						return;
+					}
+					sendNews("destiny", "en", message);
+				}
+				else if(splitMessage[1] === "auth"){
+					message.channel.sendMessage("In order to authenticate your Destiny Account you will need to follow this link: https://www.bungie.net/en/Application/Authorize/10919");
+				}
+				else if(splitMessage[1] === "link"){
 					if(splitMessage.length == 3){
 						destiny.Search({
 							membershipType: 2, 
@@ -384,7 +396,7 @@ client.on('message', message => {
 									return;
 								}
 							}
-							var linker = {discordName: message.member.user.username, destinyId: user.membershipId};
+							var linker = {discordName: message.member.user.username, destinyId: user.membershipId, token: 'NONE'};
 							console.log(linker);
 							linked_users.push(linker);
 							
@@ -1714,13 +1726,16 @@ module.exports = {
 	}
 }
 process.on('uncaughtException', function(err) {
-  for(i = 0; i < client.channels.array().length; ++i){
+  console.log(err);
+  
+  /*for(i = 0; i < client.channels.array().length; ++i){
 		if(client.channels.array()[i].name == "general")
 		{
-			client.channels.array()[i].sendMessage("I've hit a snag, the error is: "+ err);
+			
+			//client.channels.array()[i].sendMessage("I've hit a snag, the error is: "+ err);
 		}
 		
-	}
+	}*/
 });
 
 // returns event
@@ -1927,6 +1942,45 @@ Array.prototype.contains = function(obj) {
         }
     }
     return false;
+}
+
+//type is from https://www.bungie.net/Platform/Content/GetContentType/News/, 
+//couldn't be bothered figuring out how to extend the Destiny-Client library to accept 
+//the Content platform and the Destiny platform, so I'm just going to implement it here. 
+//Endpoint was completely undocumented so this was a pain to figure out.
+function sendNews(type, lang, message){
+	var base_options = {
+		url: 'https://www.bungie.net/Platform/Content/Site/News/'+type+"/"+lang+"/",
+		headers: {
+			'X-API-KEY': APIKEY
+		}
+	}
+	
+	request(base_options, function(error, response, body){
+		if(!error && response.statusCode == 200){
+			var response = JSON.parse(body);
+			var twab = response.Response.results[0];
+			
+			var title = twab.properties.Title + " - "+twab.author.displayName;
+			var sub = twab.properties.Subtitle;
+			var banner = twab.properties.FrontPageBanner;
+			var link = "http://www.bungie.net/en/News/Article/"+twab.contentId+"/";
+			var content_prev = striptags(twab.properties.Content).slice(0, 245)+"...";
+			console.log(title+"\n"+sub+"\n"+banner);
+			
+			var embed = new Discord.RichEmbed()
+				.setTitle(title)
+				.setDescription(sub+"\n\n"+content_prev)
+				.setImage("http://www.bungie.net"+banner)
+				.setURL(link)
+				.setColor(0x5182d1)
+				.setThumbnail("http://www.bungie.net/img/profile/avatars/shield2.jpg");
+			message.channel.sendEmbed(embed);
+		}
+		else{
+			console.log(error);
+		}
+	});
 }
 function getSeraTwitch(message) {
 
