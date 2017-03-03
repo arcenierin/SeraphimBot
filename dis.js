@@ -199,9 +199,21 @@ client.on('message', message => {
 		}	
 	}
 	else if (message.content === "!hepballs"){
+		message.channel.sendMessage("https://youtu.be/Tctfq4tplQ4?t=22s");
+	
+	else if (message.content === "!phrasing"){
+		message.channel.sendMessage("https://cdn.discordapp.com/attachments/287330746681524234/287332316500459520/f12d01f97d13207582d6962651aee4e5.png");
 		
-		message.channel.sendMessage("https://youtu.be/Tctfq4tplQ4?t=22s");	
-	}
+	else if (message.content === "!ants"){
+		message.channel.sendMessage("https://images.discordapp.net/.eJwNyEsOhSAMAMC7cACKVX7ehoekmogQWlfm3V2TWc2j7nGqVe0inVeA7eDcxqZZ2khUNLVGZ0n9YJ1bhSSS8l7LJQwYbHTR-7g4E4yxiF_5eXYTYnDW4GcBun--6n6R-r_AUSGx.VXTb5E1cq6s1mZ92JfmTFoY47Tg");
+		
+	else if (message.content === "!opinion"){
+		message.channel.sendMessage("https://images.discordapp.net/.eJwNyG0KwyAMANC7eADjrF_pbUTFFmwjJmOwsbtv7-f7qOcaaleHyOQdoJ5caFXNQiv3pjtRHy3Pk3WhC7JILsfVbmGwyWPAGNEFk4zx1v4rblsw3mH0KaF7ILwrjpeed1ffH8McIek.V-qBI3wev4U7dbmXtndJro2ugP8");
+
+	else if (message.content === "!stress"){
+		message.channel.sendMessage("https://images.discordapp.net/.eJwNyEEOhCAMAMC_8ACKQIX6mwYJmqgQWk-b_fvuHOdj3nmZzRyqQzaA_ZTS525F--RWbeu9XZXHKbb0G1iVy3HXRwV8RlopJYqry86h9_9KISARhogpLJgjvLzMasfTzPcHwfEhxg._jLLjTv7cjzfCxDhFdzJnJe-De4");
+
+}
     else if(message.content === "!help"){
 		
 		var h_mod = "**Mod Commands**\n" +
